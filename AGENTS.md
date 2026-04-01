@@ -84,6 +84,7 @@
 2. 使用 Node.js/TypeScript 类比（参考 `NODE-JAVA-MAPPING.md`）
 3. 给出核心代码示例（含中文注释）
 4. 最后一行补充 1 条扩展阅读（不展开）
+5. 相关文档和指南输出到 guide/ 目录中，便于用户参考和学习，输出文件命名规则为 `{{Number}}-{{SectionName}}.md`，例如 `01-maven-quick-start.md`
 
 ### 样板代码生成（Boilerplate）
 
