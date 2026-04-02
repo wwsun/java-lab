@@ -27,13 +27,13 @@
 - [x] **Maven 基础构建**：配置 Maven（对标 npm/pnpm），理解 `pom.xml` 核心结构（类比 `package.json`）。
 - [x] **Maven 指令实操**：在终端运行并掌握 `mvn clean install` 等高频指令。
 - [x] **现代语法实操验证**：手写代码验证 JDK 17 核心特性（Records、`var` 关键字、Switch 表达式、多行文本块、密封类）。
-- [ ] **🤖 AI 协同语法映射**：向 Claude 提问："把这段复杂的 Node.js `Array.reduce` 逻辑用 Java Stream API 重写"，观察并对比两者的语法惯用语（Idioms）差异。
-- [ ] **IDEA 调试技巧 (Optional)**：练习设置基础断点、条件断点，并学会在 Debug 面板中使用 Evaluate Expression，这是 Java 开发的杀手锏。
+- [x] **🤖 AI 协同语法映射**：向 Claude 提问："把这段复杂的 Node.js `Array.reduce` 逻辑用 Java Stream API 重写"，观察并对比两者的语法惯用语（Idioms）差异。
+- [x] **IDEA 调试技巧 (Optional)**：练习设置基础断点、条件断点，并学会在 Debug 面板中使用 Evaluate Expression，这是 Java 开发的杀手锏。
 
 ### 进阶语法与集合框架（Day 3-4）
 
-- [ ] **对象与泛型**：理解并写代码验证 Java 泛型的"类型擦除（Type Erasure）"机制。
-- [ ] **集合实操**：编写测试代码，分别使用 `ArrayList`, `HashSet`, `HashMap` 进行增删改查，对齐 JS 内置数据结构。
+- [x] **对象与泛型**：理解并写代码验证 Java 泛型的"类型擦除（Type Erasure）"机制。
+- [x] **集合实操**：编写测试代码，分别使用 `ArrayList`, `HashSet`, `HashMap` 进行增删改查，对齐 JS 内置数据结构。
 - [ ] **Lambda 与 Stream**：在一组对象集合上，用 Stream API 实现类似 JS `map/filter/reduce` 的数据转换与过滤。
 - [ ] **Stream 综合练习**：完成一个包含 `collect(Collectors.groupingBy())`、`flatMap`、`Optional` 组合使用的综合练习，确保 Stream API 熟练度。
 - [ ] **异常处理体系**：理解 Checked vs Unchecked Exception 的设计哲学，编写自定义业务异常类。
