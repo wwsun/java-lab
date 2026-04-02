@@ -7,6 +7,7 @@
 - **JDK版本**: 17
 - **构建工具**: Maven
 - **IDE**: IntelliJ IDEA
+- **开发框架**: Sprint Boot 3
 - **测试框架**: JUnit 5
 
 ## 目录结构

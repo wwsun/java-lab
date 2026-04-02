@@ -40,13 +40,13 @@
 
 ## 异步与并发
 
-| Node.js / TypeScript 概念 | Java 对应概念 | 备注 |
-|--------------------------|--------------|------|
-| `async/await` + Event Loop | Java 21 虚拟线程 | 无需 async 传染，底层自动非阻塞 |
+| Node.js / TypeScript 概念 | Java 对应概念（JDK 17） | 备注 |
+|--------------------------|--------------------------|------|
+| `async/await` | `CompletableFuture` | 异步编排，支持链式调用 |
 | `Promise.all()` | `CompletableFuture.allOf()` | 并发等待多个任务 |
 | `setTimeout` | `Thread.sleep()` / `ScheduledExecutorService` | 延迟执行 |
-| Node.js 单线程事件循环 | Java 21 虚拟线程调度器 | 原理类似，都是 M:N 映射 |
 | Worker Threads | `ExecutorService` / 平台线程 | 真正的并行计算 |
+| Event Loop 非阻塞 I/O | Java 21 虚拟线程（JDK 21 补充） | 无需 async 传染，底层自动非阻塞 |
 
 ## 配置与环境
 
@@ -79,7 +79,7 @@
 | `expect(x).toBe(y)` | `Assertions.assertEquals(y, x)` | 断言方式 |
 | `beforeEach` | `@BeforeEach` | 测试前置钩子 |
 
-## 分布式与微服务
+## 分布式与微服务（进阶内容，非基础路线覆盖范围）
 
 | Node.js / TypeScript 概念 | Java 对应概念 | 备注 |
 |--------------------------|--------------|------|
