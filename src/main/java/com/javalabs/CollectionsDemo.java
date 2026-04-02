@@ -1,5 +1,6 @@
 package com.javalabs;
 
+import com.javalabs.model.Employee;
 import java.util.*;
 
 /**
@@ -14,20 +15,20 @@ public class CollectionsDemo {
 
     public static void showList() {
         // 1. 创建并添加 (类比 JS: const list = ['Java', 'Node'])
-        List<String> list = new ArrayList<>();
-        list.add("Java");
-        list.add("Node.js");
-        list.add("TypeScript");
-        list.add("Java"); // 允许重复
+        // 现在我们不仅存 String，还可以直接存 Employee 对象了！
+        List<Employee> list = new ArrayList<>();
+        list.add(new Employee("1", "Java", "Core", 0, List.of()));
+        list.add(new Employee("2", "Node.js", "Web", 0, List.of()));
+        list.add(new Employee("1", "Java", "Core", 0, List.of())); // Record 默认重写了 equals，所以这里能被正确识别
 
-        // 2. 获取与索引 (类比 JS: list[1])
-        String first = list.get(0);
-        System.out.println("First element: " + first);
+        // 2. 获取
+        Employee first = list.get(0);
+        System.out.println("First employee name: " + first.name());
 
         // 3. 遍历 (类比 JS: list.forEach)
         // IDEA 技巧：输入 list.for 然后按 Tab
-        for (String s : list) {
-            System.out.println("List item: " + s);
+        for (Employee e : list) {
+            System.out.println("Employee: " + e.name() + " (" + e.department() + ")");
         }
     }
 
