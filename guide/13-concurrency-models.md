@@ -11,7 +11,7 @@ Java 的多线程并不是为了“让代码变复杂”，而是为了“让 CP
 
 ## 2. 线程 (Thread) vs 线程池 (Pool)
 
-我们在 [ConcurrencyDemo.java](file:///Users/weiwei/projj/github.com/wwsun/java-labs/src/main/java/com/javalabs/ConcurrencyDemo.java) 中展示了两种写法：
+我们在 [ConcurrencyDemo.java](../src/main/java/com/javalabs/ConcurrencyDemo.java) 中展示了两种写法：
 - **`new Thread()`**：这就像“每来一个客人就现招一个厨师，干完活就开除”。成本太高。
 - **`FixedThreadPool(3)`**：这叫“固定编制员工”。
     - **案例说明**：在 Demo 的 `poolDemo()` 中，我们招了 3 个固定厨师，但塞了 5 个订单进来。你会发现线程名字 (`pool-x-thread-x`) 只有三个，订单在排队轮流做。这就是工业级的资源复用。

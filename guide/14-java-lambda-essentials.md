@@ -4,7 +4,7 @@
 
 ## 1. 什么是 Lambda？ (起源)
 
-想象一下，你要在[LambdaDemo.java](file:///Users/weiwei/projj/github.com/wwsun/java-labs/src/main/java/com/javalabs/LambdaDemo.java)中执行一个任务。
+想象一下，你要在[LambdaDemo.java](../src/main/java/com/javalabs/LambdaDemo.java)中执行一个任务。
 
 **史前时代 (匿名内部类)**：
 ```java
