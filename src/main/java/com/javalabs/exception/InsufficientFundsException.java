@@ -1,4 +1,4 @@
-package com.javalabs;
+package com.javalabs.exception;
 
 /**
  * 一个业务级别的受检异常 (Checked Exception)

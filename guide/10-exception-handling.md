@@ -119,7 +119,17 @@ public Result register(User user) {
 
 ---
 
+## 6. 常见认知陷阱 (Pitfalls: JS vs Java)
+
+| 场景 | JavaScript | Java (整数运算) | Java (浮点数运算) |
+| --- | --- | --- | --- |
+| **`1 / 0`** | **`Infinity`** (不报错) | **`ArithmeticException`** (报错) | **`Double.POSITIVE_INFINITY`** (不报错) |
+| **`0 / 0`** | **`NaN`** (不报错) | **`ArithmeticException`** (报错) | **`Double.NaN`** (不报错) |
+
+> **关键提醒**：在业务逻辑（如电商库存分配、计算平均值）中，务必对除数进行显式校验 (`if (divisor == 0)`)，不要依赖异常捕获，因为捕获并不能解决逻辑上的数据错误。
+
 ---
+
 **参考资料**：
 - [Baeldung: Exception Handling in Java](https://www.baeldung.com/java-exceptions)
 - [Oracle Docs: Exceptions Tutorial](https://docs.oracle.com/javase/tutorial/essential/exceptions/index.html)
