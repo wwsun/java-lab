@@ -34,7 +34,7 @@
 
 ## 4. 开发实践：详解 ThreadPoolTuningDemo 设计
 
-在 [ThreadPoolTuningDemo.java](file:///Users/weiwei/projj/github.com/wwsun/java-labs/src/main/java/com/javalabs/ThreadPoolTuningDemo.java) 中，我们通过两个实验完整复现了线程池的“压力流转”。
+在 [ThreadPoolTuningDemo.java](../src/main/java/com/javalabs/ThreadPoolTuningDemo.java) 中，我们通过两个实验完整复现了线程池的“压力流转”。
 
 ### 实验 A：全流程饱和攻击 (`runSaturationTest`)
 
@@ -69,7 +69,7 @@
 
 ### 实验 C：自定义 ThreadFactory 设计
 
-在 [ThreadPoolTuningDemo.java](file:///Users/weiwei/projj/github.com/wwsun/java-labs/src/main/java/com/javalabs/ThreadPoolTuningDemo.java) 的 L77 处，我们实现了一个自定义工厂。
+在 [ThreadPoolTuningDemo.java](../src/main/java/com/javalabs/ThreadPoolTuningDemo.java) 的 L77 处，我们实现了一个自定义工厂。
 
 **核心价值解密：**
 - **赋予“灵魂” (线程命名)**：默认线程名 `pool-1-thread-1` 没有任何业务含义。使用 `TuningWorker-n` 命名，能让线上故障排查效率提升 10 倍。

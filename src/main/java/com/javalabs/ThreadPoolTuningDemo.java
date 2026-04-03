@@ -20,7 +20,7 @@ public class ThreadPoolTuningDemo {
                 4,                      // 最大线程 (临时工+常驻)
                 10, TimeUnit.SECONDS,   // 非核心存活时间
                 new ArrayBlockingQueue<>(3), // 💡 阻塞队列 (等待位)
-                new CustomThreadFactory(),
+                new CustomThreadFactory(), // 使用自定义线程工厂，主要目的是便于识别线程
                 new ThreadPoolExecutor.AbortPolicy() // 💡 默认拒绝策略：报错
         );
 
