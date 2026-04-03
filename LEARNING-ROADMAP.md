@@ -36,7 +36,7 @@
 - [x] **集合实操**：编写测试代码，分别使用 `ArrayList`, `HashSet`, `HashMap` 进行增删改查，对齐 JS 内置数据结构。
 - [x] **Lambda 与 Stream**：在一组对象集合上，用 Stream API 实现类似 JS `map/filter/reduce` 的数据转换与过滤。
 - [x] **Stream 综合练习**：完成一个包含 `collect(Collectors.groupingBy())`、`flatMap`、`Optional` 组合使用的综合练习，确保 Stream API 熟练度。
-- [ ] **异常处理体系**：理解 Checked vs Unchecked Exception 的设计哲学，编写自定义业务异常类。
+- [x] **异常处理体系**：理解 Checked vs Unchecked Exception 的设计哲学，编写自定义业务异常类。
 - [ ] **Java 时间 API**：掌握 `java.time.LocalDateTime`、`Instant`、`DateTimeFormatter` 等核心类的日常使用。
 
 ### 并发概念速览与周末综合练习（Day 5-周末）

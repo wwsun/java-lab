@@ -46,3 +46,4 @@
 
 - [JetBrains 官方调试视频教程](https://www.jetbrains.com/help/idea/debugging-your-first-java-application.html)
 - https://blog.jetbrains.com/idea/2025/04/debugging-java-code-in-intellij-idea/
+- https://www.jetbrains.com/help/idea/debugging-your-first-java-application.html
