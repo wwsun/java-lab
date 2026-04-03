@@ -44,11 +44,11 @@
 > [!note] 并发学习策略
 > 在典型 Java Web 应用中，线程管理主要交给 Spring Boot 框架层（内嵌 Tomcat 线程池）处理。这里只需理解核心概念，不必深挖线程池参数调优。
 
-- [ ] **并发基础认知**：理解 Java 多线程模型与 Node.js 单线程事件循环的本质差异。
-- [ ] **基础线程**：手写 `Thread` 和 `Runnable` 范例，体验多线程的启动。
-- [ ] **复现并发冲突**：不用锁写一段多线程共享计数器代码，观察数据不一致现象。
-- [ ] **加锁解决冲突**：分别使用 `synchronized` 关键字和 `ReentrantLock` 修复并发冲突。
-- [ ] **线程池基础**：了解 `ExecutorService` 的基本用法，理解线程池相比手动创建线程的优势。
+- [x] **并发基础认知**：理解 Java 多线程模型与 Node.js 单线程事件循环的本质差异。
+- [x] **基础线程**：手写 `Thread` 和 `Runnable` 范例，体验多线程的启动。
+- [x] **复现并发冲突**：不用锁写一段多线程共享计数器代码，观察数据不一致现象。
+- [x] **加锁解决冲突**：分别使用 `synchronized` 关键字和 `ReentrantLock` 修复并发冲突。
+- [x] **线程池基础**：了解 `ExecutorService` 的基本用法，理解线程池相比手动创建线程的优势。
 - [ ] **线程安全集合**：单独测试 `ConcurrentHashMap`，理解何为线程安全的集合操作。
 - [ ] **线程池参数配置 (Optional)**：使用 `ThreadPoolExecutor` 创建自定义线程池，对比不同核心线程数、最大线程数及拒绝策略的表现。
 - [ ] **JDK 21 虚拟线程体验 (Optional, 需要 JDK 21)**：用 `Thread.ofVirtual()` 和 `Executors.newVirtualThreadPerTaskExecutor()` 感受轻量级并发——底层自动非阻塞 I/O，代码却像同步般直白。类比 Node.js 事件循环的 M:N 映射思想。
