@@ -30,15 +30,44 @@
 3.  **`DiscardPolicy`**：悄悄丢弃，不报任何错。极其危险。
 4.  **`DiscardOldestPolicy`**：丢弃队列里等得最久的任务，尝试腾位置。
 
-## 4. 给 Node.js 开发者的建议
+---
+
+## 4. 开发实践：详解 ThreadPoolTuningDemo 设计
+
+在 [ThreadPoolTuningDemo.java](file:///Users/weiwei/projj/github.com/wwsun/java-labs/src/main/java/com/javalabs/ThreadPoolTuningDemo.java) 中，我们通过两个实验完整复现了线程池的“压力流转”。
+
+### 实验 A：全流程饱和攻击 (`runSaturationTest`)
+
+这是最经典的学习案例。我们构建了一个特殊的线程池：
+- **参数配置**：`core=2`, `queue=3`, `max=4` (总承载能力为 7)。
+- **任务模拟**：连续提交 8 个耗时 500ms 的任务。
+
+**实验设计拆解：**
+1.  **任务 1-2**：命中 `corePoolSize=2`。此时 `Pool Size` 增加到 2，任务立即由 `TuningWorker-1/2` 执行。
+2.  **任务 3-5**：核心已满。任务进入 `ArrayBlockingQueue(3)`。此时 `Pool Size` 依然为 2，但 `Queue Size` 增加到 3。
+3.  **任务 6-7**：队列也满了！池子触发**扩容**，启动非核心线程。此时 `Pool Size` 增加到 4。
+4.  **任务 8**：**彻底饱和**（4 线程 + 3 队列 = 7）。第 8 个任务因为超出了总承载能力，触发了 `AbortPolicy`，抛出明显的 `RejectedExecutionException`。
+
+---
+
+### 实验 B：拒绝策略切换 (`runCallerRunsDemo`)
+
+当系统过载时，报错 (`AbortPolicy`) 并不是唯一选择。
+
+**代码设计逻辑：**
+- 我们切换到了 `CallerRunsPolicy`。
+- **运行表现**：当池子无法承受新任务时，主线程（`main`）将不再异步派发，而是**亲自运行**该任务。
+- **调优心法**：这在 Node.js 中类似“同步阻塞”。但在 Java 里，这是一种极佳的**天然降流**机制——主任务忙着跑任务，就没法继续提交新任务，从而给了线程池消化存量任务的时间。
+
+## 5. 给 Node.js 开发者的建议
 
 - **资源受控**：Node.js 的 Event Loop 虽然是非阻塞的，但在密集计算时也会挂起。Java 线程池的核心目标是 **“资源限制”** —— 宁可报拒绝错误，也不要把服务器内存撑爆。
 - **自定义队列**：始终记得配置有界队列（如长度 500），永远不要用无限队列。
 
 ---
 > [!IMPORTANT]
-> **实践小贴解：** 接下来我们将通过 `ThreadPoolTuningDemo` 复现任务从核心线程 -> 队列排队 -> 最大线程扩容的惊险全过程。
+> **实践小贴士：** 运行 Demo 时，请密切观察控制台打印的 `[Submitted] Pool Size` 变化。你会发现 Pool Size 并不是匀速增长的，而是先填满 Core，再填满 Queue，最后才跳到 Max。
 
-**参考资料**：
+**扩展阅读：**
 - [Java ThreadPoolExecutor - Seven Parameters Explained](https://www.baeldung.com/java-threadpool-executor-service)
 - [Uber Engineering: Effective Java Threading](https://eng.uber.com/java-threadpool-best-practices/)
