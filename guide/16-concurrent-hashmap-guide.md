@@ -32,7 +32,98 @@
 
 ## 4. 给 Node.js 开发者的建议
 
-- **不要在 Loop 中改 Map**：即使是 `ConcurrentHashMap`，在遍历时修改虽然不会报错，但逻辑可能不符合预期。
+### ⚠️ 不要在 Loop 中改 Map
+
+即使是 `ConcurrentHashMap`，在遍历时修改虽然不会抛出 `ConcurrentModificationException`（`HashMap` 会抛），但**逻辑可能不符合预期**，产生难以排查的 Bug。
+
+#### 问题场景：遍历时删除过期缓存
+
+```java
+// ❌ 危险写法：遍历时直接修改（逻辑可能不完整/不一致）
+ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
+map.put("a", 1);
+map.put("b", 2);
+map.put("c", 3);
+
+for (String key : map.keySet()) {
+    if (map.get(key) < 2) {
+        map.remove(key); // 虽然不会报错，但在并发下可能漏删或逻辑混乱
+    }
+}
+```
+
+> **类比 Node.js**：这就像在 `for...of` 遍历数组时，同时调用 `array.splice()` 删除元素——你可能会跳过某些元素，或者处理到已经被删除的位置。
+
+---
+
+#### ✅ 最佳实践 1：使用 `entrySet().removeIf()` —— 原子批量删除
+
+```java
+// ✅ 推荐：removeIf 内部使用迭代器安全删除
+map.entrySet().removeIf(entry -> entry.getValue() < 2);
+```
+
+- `removeIf` 底层使用迭代器的 `remove()`，是专门为遍历删除设计的安全方式。
+- 逻辑简洁，类比 JS 的 `filter`（但这里是原地修改）。
+
+---
+
+#### ✅ 最佳实践 2：先收集、再操作 —— 两阶段处理
+
+```java
+// ✅ 推荐：先收集需要删除的 key，再统一删除
+List<String> keysToRemove = map.entrySet().stream()
+    .filter(entry -> entry.getValue() < 2)
+    .map(Map.Entry::getKey)
+    .collect(Collectors.toList());
+
+keysToRemove.forEach(map::remove);
+```
+
+- **读写分离**：遍历阶段只读，修改阶段只写，逻辑清晰，不会自我干扰。
+- 适合逻辑复杂、需要跨多个条件判断的场景。
+
+---
+
+#### ✅ 最佳实践 3：使用 `replaceAll()` 批量更新值
+
+```java
+// ❌ 危险写法：遍历时修改 value
+for (String key : map.keySet()) {
+    map.put(key, map.get(key) * 2); // 并发下可能覆盖其他线程的写入
+}
+
+// ✅ 推荐：replaceAll 是原子性地对每个 entry 执行函数
+map.replaceAll((key, value) -> value * 2);
+```
+
+- `replaceAll` 内部对每个节点加锁，保证每次更新的原子性。
+
+---
+
+#### ✅ 最佳实践 4：使用 `forEach()` 只读遍历，禁止在其中写入
+
+```java
+// ✅ 遍历只用于读取/统计，不在内部修改 map
+map.forEach((key, value) -> {
+    System.out.println(key + " -> " + value);
+    // ⚠️ 不要在这里调用 map.put() / map.remove()
+});
+```
+
+---
+
+#### 总结对比表
+
+| 场景 | ❌ 危险写法 | ✅ 推荐写法 |
+| :--- | :--- | :--- |
+| 遍历时删除元素 | `for + map.remove()` | `removeIf()` 或两阶段删除 |
+| 遍历时更新 value | `for + map.put()` | `replaceAll()` 或 `compute()` |
+| 遍历时只读统计 | 直接 `for` | `forEach()` 只读 |
+| 条件写入（不存在才插入）| `get` + `put` | `putIfAbsent()` / `computeIfAbsent()` |
+
+---
+
 - **优先用 `java.util.concurrent` 包**：除了 Map，还有 `CopyOnWriteArrayList` 等专门为并发设计的集合。
 
 ---
