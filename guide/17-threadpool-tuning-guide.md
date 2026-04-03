@@ -56,6 +56,8 @@
 
 ---
 
+---
+
 ### 实验 B：拒绝策略切换 (`runCallerRunsDemo`)
 
 当系统过载时，报错 (`AbortPolicy`) 并不是唯一选择。
@@ -64,6 +66,18 @@
 - 我们切换到了 `CallerRunsPolicy`。
 - **运行表现**：当池子无法承受新任务时，主线程（`main`）将不再异步派发，而是**亲自运行**该任务。
 - **调优心法**：这在 Node.js 中类似“同步阻塞”。但在 Java 里，这是一种极佳的**天然降流**机制——主任务忙着跑任务，就没法继续提交新任务，从而给了线程池消化存量任务的时间。
+
+### 实验 C：自定义 ThreadFactory 设计
+
+在 [ThreadPoolTuningDemo.java](file:///Users/weiwei/projj/github.com/wwsun/java-labs/src/main/java/com/javalabs/ThreadPoolTuningDemo.java) 的 L77 处，我们实现了一个自定义工厂。
+
+**核心价值解密：**
+- **赋予“灵魂” (线程命名)**：默认线程名 `pool-1-thread-1` 没有任何业务含义。使用 `TuningWorker-n` 命名，能让线上故障排查效率提升 10 倍。
+- **线程安全性**：工厂内部必须使用 `AtomicInteger` 进行编号计数，防止多核环境下创建线程时编号出现“重号”。
+- **统一配置**：在工厂内可以统一设置线程的优先级（Priority）和是否为守护线程（Daemon）。
+
+> [!IMPORTANT]
+> **专家锦囊：** 在生产环境下导出的 **Thread Dump** 日志中，自定义的线程名能让你瞬间定位是哪个业务模块（如：`Order-Pool`、`Sms-Pool`）正在堆积。
 
 ## 5. 给 Node.js 开发者的建议
 
