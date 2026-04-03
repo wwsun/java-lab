@@ -1,44 +1,49 @@
-# 13-并发模型：Node.js Event Loop vs Java Thread Model
+# 13-并发入门：从“餐厅厨师”理论到线程安全实战
 
-作为 Node.js 开发者，理解 Java 并发的最大障碍通常不是语法，而是“心智模型”。
+Java 的多线程并不是为了“让代码变复杂”，而是为了“让 CPU 别闲着”。
 
-## 1. 核心架构对比
+## 1. 为什么需要多线程？ (餐厅类比)
 
-### Node.js：单人旋转餐厅 (Event Loop)
-- **模型**：单线程处理请求，遇到 I/O 就交给内核，自己继续处理下一个。
-- **优点**：极高的 I/O 并发，没有线程切换开销，没有竞态条件。
-- **代价**：一旦有一个请求在做 CPU 密集型计算（如加密、解密），整个服务器就会卡死。
+- **Node.js (单线程)**：像是一个只有**一个厨师**的快餐店。厨师在等水开的时候，不能去炒地皮，只能等水开了再干活（除非异步任务交给后台内核）。
+- **Java (多线程)**：像是一个拥有**多个厨师**的大型酒楼。
+    - **优点**：厨师 A 在等水开（I/O 阻塞）时，厨师 B 的炒锅（CPU 计算）可以一直冒火。
+    - **代价**：多个厨师共用一个案板（内存共享），如果两个厨师同时抢着切一把小白菜，小白菜就会被切烂。
 
-### Java：厨师团队 (Thread-per-request)
-- **模型**：为每个请求分配一个独立的线程。如果线程遇到 I/O，它会“阻塞”在那里等待。
-- **优点**：能够充分利用多核 CPU。即便一个线程在计算，其他厨师依然能干活。
-- **代价**：线程占用内存较多（每个约 1MB），过多的线程会导致上下文切换 (Context Switch) 消耗极大。
+## 2. 线程 (Thread) vs 线程池 (Pool)
 
-## 2. 为什么 Java 不怕“阻塞”？
+我们在 [ConcurrencyDemo.java](file:///Users/weiwei/projj/github.com/wwsun/java-labs/src/main/java/com/javalabs/ConcurrencyDemo.java) 中展示了两种写法：
+- **`new Thread()`**：这就像“每来一个客人就现招一个厨师，干完活就开除”。成本太高。
+- **`FixedThreadPool(3)`**：这叫“固定编制员工”。
+    - **案例说明**：在 Demo 的 `poolDemo()` 中，我们招了 3 个固定厨师，但塞了 5 个订单进来。你会发现线程名字 (`pool-x-thread-x`) 只有三个，订单在排队轮流做。这就是工业级的资源复用。
 
-在 Node.js 中，“阻塞”是死罪。但在 Java 中，这是标准操作。
-- **原因**：Java 有成百上千个线程。一个线程睡了，操作系统会自动调度另一个线程继续工作。
-- **心智映射**：
-    - Node.js 的 `fs.readFile(path, cb)` 是异步回调。
-    - Java 的 `Files.readString(path)` 是同步阻塞，但它跑在独立的线程里，互不干扰。
+## 3. 并发冲突的起因：i++ 翻车起底
 
-## 3. 异步演进：从 Callback 到 CompletableFuture
+在 Demo 中，50,000 次累加结果竟然变成了 14,000 多。这是因为 `i++` 包含了 **“读-改-写”** 三个隐形动作：
 
-虽然 Java 提倡同步写法，但它也有强大的异步工具：
-- **`CompletableFuture`**：类比 JS 的 **`Promise`**。
-- **`thenApply()` / `thenCompose()`**：类比 JS 的 **`.then()`**。
-- **`supplyAsync(() -> ...)`**：类比 JS 的 **`new Promise((resolve) => ...)`**。
+1.  **读**：厨师 A 看了一眼计数器，是 10。
+2.  **改**：厨师 A 本地计算出应该是 11。
+3.  **写**：此时厨师 B 也读到了 10，也计算出 11。两人先后写回，结果变成了 11，而不是 12！一次累加被“吃掉”了。
 
-## 4. Java 21 的大杀器：虚拟线程 (Virtual Threads)
+## 4. 解决冲突的两大“神兵利器”
 
-如果你觉得 1000 个线程就内存溢出了怎么办？Java 21 推出了**虚拟线程**。
-- **原理**：像 Go 的 Goroutine 一样，虚拟线程非常轻量（几 KB）。
-- **效果**：你可以像写同步代码一样简单，却能支撑百万级别的并发，完美融合了 Node.js 的低成本和 Java 的多核优势。
+我们在 Demo 中提供了两套方案：
+
+### ⚡️ 利器 1：AtomicInteger (CAS 思想)
+- **语义**：它在写回前会先问一眼：“案板上的数还是我刚才看到的那个吗？”
+    - **逻辑**：如果被别人动过，它就**“自旋 (Spin)”** —— 重新读一次再算，直到没人动为止。
+    - **适用**：高频、简单的数字累加。
+
+### 🔒 利器 2：Synchronized (监视器锁)
+- **语义**：每个方法前都有一扇门，必须拿到“门牌号”才能进。
+    - **逻辑**：保证代码块在同一时刻只能有一个线程进入。
+    - **适用**：复杂的业务流程（比如：先减库存、再生成订单、最后减余额）。
+
+## 5. 核心避坑：资源记得归还
+
+> [!CAUTION]
+> **切记：** Java 的线程池只要不 `shutdown()`，JVM 就永远不会退出。这就像厨师不收工，饭店的灯就永远亮着，非常耗电（资源）。
 
 ---
-> [!TIP]
-> **本周重点：** 我们先掌握传统的 **线程池 (ExecutorService)**。这是目前大多数 Java 线上业务的基石。
-
 **参考资料**：
-- [Project Loom (Virtual Threads) JEP 444](https://openjdk.org/jeps/444)
-- [Node.js Event Loop Explained](https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/)
+- [Java 并发编程实战](https://book.douban.com/subject/10484692/)
+- [Baeldung: ThreadPoolExecutor in Java](https://www.baeldung.com/java-threadpool-executor-service)
