@@ -33,8 +33,12 @@ public class LambdaDemo {
      */
     public int bypassFinalLimit() {
         // counter 是一个最终引用，指向一个可以修改的数组空间
+        // final 标记了该引用不能被重新赋值
+        // 创建一个包含 1 个元素的 int 数组，初始值是 0
+        // 等同于 int[] counter = new int[]{0}
+
         final int[] counter = {0};
-        
+
         Runnable r = () -> counter[0]++;
         r.run();
         r.run();
@@ -57,7 +61,9 @@ public class LambdaDemo {
         
         // 3. Consumer (消费)：接收对象，无返回值。常用于 forEach。
         // 这里使用了「方法引用」写法 System.out::println
-        Consumer<String> printer = System.out::println; 
+        Consumer<String> printer = System.out::println;
+
+        printer.accept("Hello Lambda");
 
         System.out.println("--- Lambda 实战演练 (Stream API) ---");
         names.stream()
