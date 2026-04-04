@@ -1,4 +1,4 @@
-package com.javalabs;
+package com.javalabs.basics;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;

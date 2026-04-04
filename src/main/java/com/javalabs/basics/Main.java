@@ -1,4 +1,4 @@
-package com.javalabs;
+package com.javalabs.basics;
 
 public class Main {
     public static void main(String[] args) {

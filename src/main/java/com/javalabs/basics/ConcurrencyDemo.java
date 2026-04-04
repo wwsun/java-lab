@@ -1,4 +1,4 @@
-package com.javalabs;
+package com.javalabs.basics;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

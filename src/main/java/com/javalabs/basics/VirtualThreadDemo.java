@@ -1,4 +1,4 @@
-package com.javalabs;
+package com.javalabs.basics;
 
 import java.time.Duration;
 import java.time.Instant;

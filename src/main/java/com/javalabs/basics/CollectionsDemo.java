@@ -1,4 +1,4 @@
-package com.javalabs;
+package com.javalabs.basics;
 
 import com.javalabs.model.Employee;
 import java.util.*;
