@@ -1,4 +1,4 @@
-package com.javalabs;
+package com.javalabs.basics;
 import com.javalabs.exception.InsufficientFundsException;
 
 import org.junit.jupiter.api.DisplayName;
