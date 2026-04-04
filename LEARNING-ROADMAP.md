@@ -15,38 +15,39 @@
 
 ### 语法与生态映射（Day 1-2）
 
+- [x] **Java 101 入门**：阅读 [00-java-basic.md](./guide/00-java-basic.md) 快速建立 Java 心智模型。
 - [x] **开发工具配置**：下载安装 IntelliJ IDEA，放弃轻型编辑器。
 - [x] 安装 jdk17
 - [x] 安装 maven
-- [x] **Maven 基础构建**：配置 Maven（对标 npm/pnpm），理解 `pom.xml` 核心结构（类比 `package.json`）。
-- [x] **Maven 指令实操**：在终端运行并掌握 `mvn clean install` 等高频指令。
-- [x] **现代语法实操验证**：手写代码验证 JDK 17 核心特性（Records、`var` 关键字、Switch 表达式、多行文本块、密封类）。
-- [x] **🤖 AI 协同语法映射**：向 Claude 提问："把这段复杂的 Node.js `Array.reduce` 逻辑用 Java Stream API 重写"，观察并对比两者的语法惯用语（Idioms）差异。
-- [x] **IDEA 调试技巧 (Optional)**：练习设置基础断点、条件断点，并学会在 Debug 面板中使用 Evaluate Expression，这是 Java 开发的杀手锏。
+- [x] **Maven 基础构建**：配置 Maven（对标 npm/pnpm），理解 `pom.xml` 核心结构（类比 `package.json`）。 [01-maven-vs-npm-guide.md](./guide/01-maven-vs-npm-guide.md)
+- [x] **Maven 指令实操**：在终端运行并掌握 `mvn clean install` 等高频指令。 [02-maven-essentials.md](./guide/02-maven-essentials.md)
+- [x] **现代语法实操验证**：手写代码验证 JDK 17 核心特性（Records、`var` 关键字、Switch 表达式、多行文本块、密封类）。 [12-java-var-usage.md](./guide/12-java-var-usage.md)
+- [x] **🤖 AI 协同语法映射**：向 Claude 提问："把这段复杂的 Node.js `Array.reduce` 逻辑用 Java Stream API 重写"，观察并对比两者的语法惯用语（Idioms）差异。 [03-stream-api-mapping.md](./guide/03-stream-api-mapping.md)
+- [x] **IDEA 调试技巧 (Optional)**：练习设置基础断点、条件断点，并学会在 Debug 面板中使用 Evaluate Expression，这是 Java 开发的杀手锏。 [06-intellij-debugging-tips.md](./guide/06-intellij-debugging-tips.md)
 
 ### 进阶语法与集合框架（Day 3-4）
 
-- [x] **对象与泛型**：理解并写代码验证 Java 泛型的"类型擦除（Type Erasure）"机制。
-- [x] **集合实操**：编写测试代码，分别使用 `ArrayList`, `HashSet`, `HashMap` 进行增删改查，对齐 JS 内置数据结构。
-- [x] **Lambda 与 Stream**：在一组对象集合上，用 Stream API 实现类似 JS `map/filter/reduce` 的数据转换与过滤。
-- [x] **Stream 综合练习**：完成一个包含 `collect(Collectors.groupingBy())`、`flatMap`、`Optional` 组合使用的综合练习，确保 Stream API 熟练度。
-- [x] **异常处理体系**：理解 Checked vs Unchecked Exception 的设计哲学，编写自定义业务异常类。
-- [x] **Java 时间 API**：掌握 `java.time.LocalDateTime`、`Instant`、`DateTimeFormatter` 等核心类的日常使用。
+- [x] **对象与泛型**：理解并写代码验证 Java 泛型的"类型擦除（Type Erasure）"机制。 [05-generics-and-erasure.md](./guide/05-generics-and-erasure.md)
+- [x] **集合实操**：编写测试代码，分别使用 `ArrayList`, `HashSet`, `HashMap` 进行增删改查，对齐 JS 内置数据结构。 [08-collections-mapping.md](./guide/08-collections-mapping.md)
+- [x] **Lambda 与 Stream**：在一组对象集合上，用 Stream API 实现类似 JS `map/filter/reduce` 的数据转换与过滤。 [14-java-lambda-essentials.md](./guide/14-java-lambda-essentials.md)
+- [x] **Stream 综合练习**：完成一个包含 `collect(Collectors.groupingBy())`、`flatMap`、`Optional` 组合使用的综合练习，确保 Stream API 熟练度。 [03-stream-api-mapping.md](./guide/03-stream-api-mapping.md)
+- [x] **异常处理体系**：理解 Checked vs Unchecked Exception 的设计哲学，编写自定义业务异常类。 [10-exception-handling.md](./guide/10-exception-handling.md)
+- [x] **Java 时间 API**：掌握 `java.time.LocalDateTime`、`Instant`、`DateTimeFormatter` 等核心类的日常使用。 [11-java-time-api.md](./guide/11-java-time-api.md)
 
 ### 并发概念速览与周末综合练习（Day 5-周末）
 
 > [!note] 并发学习策略
 > 在典型 Java Web 应用中，线程管理主要交给 Spring Boot 框架层（内嵌 Tomcat 线程池）处理。这里只需理解核心概念，不必深挖线程池参数调优。
 
-- [x] **并发基础认知**：理解 Java 多线程模型与 Node.js 单线程事件循环的本质差异。
-- [x] **基础线程**：手写 `Thread` 和 `Runnable` 范例，体验多线程的启动。
+- [x] **并发基础认知**：理解 Java 多线程模型与 Node.js 单线程事件循环的本质差异。 [13-concurrency-models.md](./guide/13-concurrency-models.md)
+- [x] **基础线程**：手写 `Thread` 和 `Runnable` 范例，体验多线程的启动。 [15-runnable-vs-callable.md](./guide/15-runnable-vs-callable.md)
 - [x] **复现并发冲突**：不用锁写一段多线程共享计数器代码，观察数据不一致现象。
 - [x] **加锁解决冲突**：分别使用 `synchronized` 关键字和 `ReentrantLock` 修复并发冲突。
 - [x] **线程池基础**：了解 `ExecutorService` 的基本用法，理解线程池相比手动创建线程的优势。
-- [x] **线程安全集合**：单独测试 `ConcurrentHashMap`，理解何为线程安全的集合操作。
-- [/] **线程池参数配置 (Optional)**：使用 `ThreadPoolExecutor` 创建自定义线程池，对比不同核心线程数、最大线程数及拒绝策略的表现。
-- [/] **JDK 21 虚拟线程体验 (Optional, 需要 JDK 21)**：用 `Thread.ofVirtual()` 和 `Executors.newVirtualThreadPerTaskExecutor()` 感受轻量级并发——底层自动非阻塞 I/O，代码却像同步般直白。类比 Node.js 事件循环的 M:N 映射思想。
-- [/] **多线程调试 (Optional)**：尝试在 IDEA 中将断点设置为 Thread 模式，观察并控制多线程的交替执行。
+- [x] **线程安全集合**：单独测试 `ConcurrentHashMap`，理解何为线程安全的集合操作。 [16-concurrent-hashmap-guide.md](./guide/16-concurrent-hashmap-guide.md)
+- [/] **线程池参数配置 (Optional)**：使用 `ThreadPoolExecutor` 创建自定义线程池，对比不同核心线程数、最大线程数及拒绝策略的表现。 [17-threadpool-tuning-guide.md](./guide/17-threadpool-tuning-guide.md)
+- [/] **JDK 21 虚拟线程体验 (Optional, 需要 JDK 21)**：用 `Thread.ofVirtual()` 和 `Executors.newVirtualThreadPerTaskExecutor()` 感受轻量级并发——底层自动非阻塞 I/O，代码却像同步般直白。类比 Node.js 事件循环的 M:N 映射思想。 [19-virtual-threads-intro.md](./guide/19-virtual-threads-intro.md)
+- [/] **多线程调试 (Optional)**：尝试在 IDEA 中将断点设置为 Thread 模式，观察并控制多线程的交替执行。 [18-multithreading-debugging.md](./guide/18-multithreading-debugging.md)
 - [/] **[第一周终极实战验收]：多线程文件内容扫描器 (CLI Tool)**
 
 ---
