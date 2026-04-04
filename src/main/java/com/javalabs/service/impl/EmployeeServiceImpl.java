@@ -3,83 +3,62 @@ package com.javalabs.service.impl;
 import com.javalabs.exception.ResourceNotFoundException;
 import com.javalabs.model.Employee;
 import com.javalabs.service.EmployeeService;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 员工管理服务实现类
- * 使用 ConcurrentHashMap 模拟数据库存储
+ * 员工服务实现类
+ * 演示 Spring Bean 的生命周期
  */
+@Slf4j
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-    // 内存数据库 (模拟)
-    private final Map<String, Employee> employeeStorage = new ConcurrentHashMap<>();
+    // 使用内存 Map 模拟数据库
+    private final Map<String, Employee> repository = new ConcurrentHashMap<>();
 
-    public EmployeeServiceImpl() {
-        // 初始化一些 Mock 数据
-        createEmployee(new Employee(null, "张三", "开发部", 15000, List.of("Java", "Spring")));
-        createEmployee(new Employee(null, "李四", "测试部", 12000, List.of("JUnit", "Selenium")));
+    @PostConstruct
+    public void init() {
+        log.info("🌟 [IoC 验证] EmployeeServiceImpl 实例已由容器创建！");
+        // 修正：增加符合 Record 定义的 skills 列表参数
+        repository.put("1", new Employee("1", "Sun", "Dev", 50000.0, List.of("Java", "Spring")));
+        log.info("🌟 [IoC 验证] @PostConstruct 钩子触发：预置测试数据加载完毕。");
     }
 
     @Override
     public List<Employee> getAllEmployees() {
-        return new ArrayList<>(employeeStorage.values());
+        return new ArrayList<>(repository.values());
     }
 
     @Override
     public Optional<Employee> getEmployeeById(String id) {
-        return Optional.ofNullable(employeeStorage.get(id));
+        return Optional.ofNullable(repository.get(id));
     }
 
     @Override
     public Employee createEmployee(Employee employee) {
-        // 模拟 ID 生成 (UUID)
-        String id = (employee.id() == null || employee.id().isBlank()) 
-                    ? UUID.randomUUID().toString().substring(0, 8) 
-                    : employee.id();
-        
-        Employee newEmployee = new Employee(
-            id,
-            employee.name(),
-            employee.department(),
-            employee.salary(),
-            employee.skills()
-        );
-        
-        employeeStorage.put(id, newEmployee);
-        return newEmployee;
+        repository.put(employee.id(), employee);
+        return employee;
     }
 
     @Override
     public Employee updateEmployee(String id, Employee employee) {
-        if (!employeeStorage.containsKey(id)) {
-            throw new ResourceNotFoundException("员工 ID 为 " + id + " 的记录不存在，无法更新");
+        if (repository.containsKey(id)) {
+            repository.put(id, employee);
+            return employee;
         }
-        
-        Employee updatedEmployee = new Employee(
-            id, // 保持 ID 不变
-            employee.name(),
-            employee.department(),
-            employee.salary(),
-            employee.skills()
-        );
-        
-        employeeStorage.put(id, updatedEmployee);
-        return updatedEmployee;
+        throw new ResourceNotFoundException("找不到 ID 为 " + id + " 的员工");
     }
 
     @Override
     public void deleteEmployee(String id) {
-        if (!employeeStorage.containsKey(id)) {
-            throw new ResourceNotFoundException("员工 ID 为 " + id + " 的记录不存在，无法删除");
-        }
-        employeeStorage.remove(id);
+        repository.remove(id);
     }
 }

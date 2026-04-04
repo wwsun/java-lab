@@ -65,7 +65,7 @@
 
 ### Spring Boot 启蒙（Day 1-2）
 
-- [/] **脚手架生成**：使用 Spring Initializr 平台生成脚手架（选用 Java 17, Spring Boot 3.x, Maven, Spring Web）并导入 IDEA。
+- [/] **脚手架生成**：使用 [Spring Initializr](https://start.spring.io/) 平台生成脚手架（选用 Java 17, Spring Boot 3.x, Maven, Spring Web）并导入 IDEA。
 - [ ] **IoC 与 DI 验证**：写两组类验证有无 `@Autowired` 时的实例化过程及依赖关系的绑定。
 - [ ] **RESTful API 全方法实操**：编写 `@RestController` 实现完整的 `GET`/`POST`/`PUT`/`DELETE` 接口，覆盖资源的增删改查。
 - [ ] **RESTful 接口设计规范**：掌握 URL 命名规范（名词复数 `/api/users`、嵌套资源 `/api/users/{id}/tasks`）、HTTP Method 语义映射。
