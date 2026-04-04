@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.javalabs.model.Employee;
-import static com.javalabs.StreamDemo.*;
+import static com.javalabs.basics.StreamDemo.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Java Stream API & Lambda 进阶实操与验证")

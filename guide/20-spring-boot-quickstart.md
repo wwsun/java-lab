@@ -1,57 +1,115 @@
-# 20-Spring Boot 启蒙：从手动 new 到 IoC 容器的多维跨越
+# 20-Spring Boot 核心启蒙：现代 Java 后端的工业级范式
 
-欢迎来到 Java 后端开发的核心。如果您曾使用过 Node.js 的 **NestJS** 框架，您会发现 Spring 的设计哲学简直如出一辙。
+欢迎来到 Java 生态的基石 —— **Spring Boot 3.x**。本指南将带您通过 **工程源码** 领略其两大杀手锏：**控制反转 (IoC)** 与 **约定优于配置 (CoC)**。
 
-## 1. 核心模型对标：手动 vs 自动
+---
 
-| 概念 | Node.js (Pure JS) | Node.js (NestJS) | **Java (Spring Boot)** |
+## 1. 核心模型对标：从 Node 到 Java
+
+| 场景 | Node.js (Express/NestJS) | **Java (Spring Boot)** | **设计哲学** |
 | :--- | :--- | :--- | :--- |
-| **对象创建** | `const srv = new Service()` | `@Injectable()` 类 | **`@Service` / `@Component`** |
-| **依赖获取** | `import { srv } from '...'` | `constructor(private srv: Srv)` | **`@Autowired` / 构造器注入** |
-| **容器** | 无 | `Module` | **`ApplicationContext` (IoC 容器)** |
+| **路由层** | `@Controller()` / `router.get()` | **`@RestController`** | 处理输入输出的“门卫” |
+| **业务层** | `@Injectable()` Service | **`@Service`** | 纯粹的领域逻辑处理器 |
+| **依赖注入** | `constructor(private srv: Srv)` | **`@RequiredArgsConstructor`** | “我不需要关心对象怎么 new 出来的” |
+| **配置** | `process.env` / `.env` | **`application.yml`** | 类型安全、中心化配置 |
+| **设计哲学** | 灵活/手动 (Manual) | **约定优于配置 (CoC)** | “能不写的就不写” |
 
 ---
 
-## 2. 什么是 IoC (控制反转)？
+## 2. Spring Boot 的灵魂：约定优于配置 (CoC)
 
-**IoC (Inversion of Control)** 不是一种工具，而是一种 **“控制权的让渡”**。
+**Convention Over Configuration** 的核心思想是：**“如果你遵循某种约定，框架就会自动帮你完成剩下的工作。”**
 
-- **过去**：程序员是独裁者。什么时候需要 `UserMapper`？我自己写 `new UserMapper()`。
-- **现在 (Spring)**：程序员是“资源申领者”。我告诉 Spring：“我这个 `UserService` 需要一个 `UserMapper`”，Spring 就会在启动时帮你 new 好，并自动塞（注入）进去。
-
-### 为什么这样做更好？
-1.  **极易测试**：你可以随心所欲地替换掉 Mock 对象。
-2.  **解耦**：类与类之间不再直接“咬死”，而是通过容器“松耦合”关联。
-3.  **单例管理**：大部分业务类（Bean）在 Spring 中默认都是单例，节省内存。
+### 🛡️ 案例：为什么我们的项目能直接运行？
+观察我们的项目结构：
+- **约定 A**：代码必须在 `src/main/java` 下。
+- **约定 B**：配置文件必须叫 `application.properties/yml` 并放在 `resources` 下。
+- **约定 C**：主启动类（带 `@SpringBootApplication`）所在包及其子包会被自动扫描。只要你遵循这个包名结构，你的 Controller 甚至不用注册就能生效！
 
 ---
 
-## 3. 核心注解：告诉 Spring 怎么做
+## 3. 深入理解 IoC：从“独裁”到“托管”
 
-在 Spring 中，我们通过 **注解 (Annotations)** 来下达指令：
+**IoC (Inversion of Control)** 反转了“创建对象的权力”。
 
-- **`@Component`**：通用组件标记（相当于“我是一个 Bean”）。
-- **`@Service`**：语义化的业务逻辑标记。
-- **`@Repository`**：数据访问层标记（数据库相关）。
-- **`@Controller / @RestController`**：处理 HTTP 请求的标记。
-- **`@Autowired`**：告诉容器，“把那个 Bean 给我注入进来！”
+### ✅ 模式：Spring 是“大管家” (Spring Managed)
+在我们的 `EmployeeController` 中，我们没有写一行 `new EmployeeServiceImpl()`，这就是 IoC 的威力：
+
+```java
+@RestController
+@RequiredArgsConstructor // 👈 魔法点 1：Lombok 自动生成构造函数
+public class EmployeeController {
+    // 👈 魔法点 2：只需声明 final 接口，Spring 启动时会自动找零件并“塞”进来
+    private final EmployeeService employeeService; 
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Employee> get(@PathVariable String id) {
+        return employeeService.getEmployeeById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResourceNotFoundException("ID 不存在"));
+    }
+}
+```
 
 ---
 
-## 4. 动手验证：Bean 的生命周期
+## 4. 源码解剖：我们在工程中写了什么？
 
-我们已经在 [JavaLabsApplication.java](../src/main/java/com/javalabs/JavaLabsApplication.java) 中通过 `@SpringBootApplication` 开启了自动扫描。
+### 4.1 `JavaLabsApplication`：项目的“神经中枢”
+```java
+@SpringBootApplication // 复合注解 = 配置类 + 自动装配开启 + 包扫描开启
+public class JavaLabsApplication {
+    public static void main(String[] args) {
+        // 这一行执行后：1. 启动嵌入式 Tomcat 2. 扫描所有 Bean 3. 建立路由映射图
+        SpringApplication.run(JavaLabsApplication.class, args);
+    }
+}
+```
 
-### 验证步骤：
-1.  启动主类。
-2.  观察控制台：Spring 会递归扫描 `com.javalabs` 及其子包下的所有带注解的类。
-3.  创建实例并存入 **BeanFactory**（IoC 容器的底层实现）。
+### 4.2 `GreetingController`：简单的 HTTP 转换
+```java
+@RestController // 告诉 Spring：这个类的返回值直接转为 JSON
+public class GreetingController {
+
+    @GetMapping("/api/greeting") // 映射 GET 路径
+    public GreetingResponse sayHello(@RequestParam(defaultValue = "Java") String name) {
+        // 返回 Java 17 Record，效果等同于 TS 的 Interface 模型
+        return new GreetingResponse("Hello, " + name + "!", System.currentTimeMillis());
+    }
+
+    public record GreetingResponse(String message, long timestamp) {}
+}
+```
+
+### 4.3 `EmployeeController`：工业级 CRUD 指挥家
+它是最能体现 **三层架构** 的地方：
+- **Web 层对标**：使用 `@PostMapping`、`@PutMapping` 等注解精确对应 HTTP 方法。
+- **响应控制**：使用 `ResponseEntity.status(HttpStatus.CREATED)` 控制精确的 201 状态码，而非永远返回 200。
+- **参数解耦**：`@RequestBody` 自动处理 JSON -> Java 对象的反序列化。
 
 ---
+
+## 5. 深度实战演练：IoC & CoC 的联手威力
+
+### 5.1 自动配置 (CoC) 的奇迹
+当你在 `pom.xml` 加入 H2 数据库依赖，Spring 会“脑补”出你的数据库连接池。你不需要写一行 JDBC 代码就能直接注入 `DataSource`。
+
+### 5.2 极致简单的单元测试 (IoC 优势)
+在 `EmployeeControllerTest` 中，我们使用了 `@MockBean`：
+```java
+@MockBean
+private EmployeeService employeeService;
+```
+由于 Controller 不自己 `new` 服务，我们可以轻而易举地在测试时把“真服务”换成“假 Mock”，这在强耦合的传统代码中简直是天方夜谭。
+
+---
+
 > [!TIP]
-> **指挥 AI 的提示词：** 
-> *“将这个普通的 POJO 类转化为一个由 Spring 托管的单例 Service，并为其配置一个能够被自动注入的 Mapper 占位符。”*
+> **本阶段实战示例**：
+> - 异常处理：[GlobalExceptionHandler.java](../src/main/java/com/javalabs/exception/GlobalExceptionHandler.java)
+> - 控制器逻辑：[EmployeeController.java](../src/main/java/com/javalabs/controller/EmployeeController.java)
+> - 单元测试：[EmployeeControllerTest.java](../src/test/java/com/javalabs/controller/EmployeeControllerTest.java)
 
 **参考资料**：
-- [Spring Reference Guide - IoC Container](https://docs.spring.io/spring-framework/reference/core/beans.html)
-- [Baeldung: Guide to Spring Annotations](https://www.baeldung.com/spring-annotations-resource-inject-autowire)
+1. [Spring Boot 官方文档 - 自动配置原理](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html)
+2. [Baeldung - Spring @Value 注解全指南](https://www.baeldung.com/spring-value-annotation)
