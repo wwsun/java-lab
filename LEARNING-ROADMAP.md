@@ -16,12 +16,13 @@
 ### 语法与生态映射（Day 1-2）
 
 - [x] **Java 101 入门**：阅读 [00-java-basic.md](./guide/00-java-basic.md) 快速建立 Java 心智模型。
-- [x] **开发工具配置**：下载安装 IntelliJ IDEA，放弃轻型编辑器。
+- [x] **开发工具配置**：下载安装 IntelliJ IDEA，放弃轻型编辑器。 [07-intellij-productivity-tips.md](./guide/07-intellij-productivity-tips.md)
 - [x] 安装 jdk17
 - [x] 安装 maven
 - [x] **Maven 基础构建**：配置 Maven（对标 npm/pnpm），理解 `pom.xml` 核心结构（类比 `package.json`）。 [01-maven-vs-npm-guide.md](./guide/01-maven-vs-npm-guide.md)
 - [x] **Maven 指令实操**：在终端运行并掌握 `mvn clean install` 等高频指令。 [02-maven-essentials.md](./guide/02-maven-essentials.md)
 - [x] **现代语法实操验证**：手写代码验证 JDK 17 核心特性（Records、`var` 关键字、Switch 表达式、多行文本块、密封类）。 [12-java-var-usage.md](./guide/12-java-var-usage.md)
+- [x] **代码质量与 Linting (Optional)**：了解集成 Checkstyle/Spotless 等 Java 工具。 [04-linting-and-quality.md](./guide/04-linting-and-quality.md)
 - [x] **🤖 AI 协同语法映射**：向 Claude 提问："把这段复杂的 Node.js `Array.reduce` 逻辑用 Java Stream API 重写"，观察并对比两者的语法惯用语（Idioms）差异。 [03-stream-api-mapping.md](./guide/03-stream-api-mapping.md)
 - [x] **IDEA 调试技巧 (Optional)**：练习设置基础断点、条件断点，并学会在 Debug 面板中使用 Evaluate Expression，这是 Java 开发的杀手锏。 [06-intellij-debugging-tips.md](./guide/06-intellij-debugging-tips.md)
 
@@ -64,7 +65,7 @@
 
 ### Spring Boot 启蒙（Day 1-2）
 
-- [ ] **脚手架生成**：使用 Spring Initializr 平台生成脚手架（选用 Java 17, Spring Boot 3.x, Maven, Spring Web）并导入 IDEA。
+- [/] **脚手架生成**：使用 Spring Initializr 平台生成脚手架（选用 Java 17, Spring Boot 3.x, Maven, Spring Web）并导入 IDEA。
 - [ ] **IoC 与 DI 验证**：写两组类验证有无 `@Autowired` 时的实例化过程及依赖关系的绑定。
 - [ ] **RESTful API 全方法实操**：编写 `@RestController` 实现完整的 `GET`/`POST`/`PUT`/`DELETE` 接口，覆盖资源的增删改查。
 - [ ] **RESTful 接口设计规范**：掌握 URL 命名规范（名词复数 `/api/users`、嵌套资源 `/api/users/{id}/tasks`）、HTTP Method 语义映射。
