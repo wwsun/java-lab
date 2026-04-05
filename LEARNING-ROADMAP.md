@@ -84,16 +84,16 @@
 - [x] **连接池调优**：在配置文件中设置并熟悉 HikariCP 核心配置。
 - [x] **ORM 层搭建**：编写基于数据表的 Entity 实体类（Lombok 注解）及对应的 Mapper 接口。
 - [x] **CRUD 测试**：利用 MyBatis-Plus 内置的基础方法（`selectById`, `insert`, `updateById`, `deleteById`）体验增删改查。
-- [ ] **N+1 查询问题**：理解 ORM 的 N+1 查询陷阱（类比 Prisma 的 `include` / TypeORM 的 `eager loading`）。在 MyBatis-Plus 中通过 `@Select` 联表查询或自定义 XML Mapper 中的 `<resultMap>` + `<association>` 解决。
-- [ ] **🤖 AI 骨架生成提效**：跳过手打模板，尝试对 AI 发送指令："基于这份 DDL SQL，生成自带 Lombok 注解的 MyBatis-Plus Entity 实体和与其配套的一组标准 CRUD Controller / Service"，并 Review 其生成的依赖路径是否符合你的层级结构。
+- [x] **N+1 查询问题**：理解 ORM 的 N+1 查询陷阱（类比 Prisma 的 `include` / TypeORM 的 `eager loading`）。在 MyBatis-Plus 中通过 `@Select` 联表查询或自定义 XML Mapper 中的 `<resultMap>` + `<association>` 解决。
+- [x] **🤖 AI 骨架生成提效**：跳过手打模板，尝试对 AI 发送指令："基于这份 DDL SQL，生成自带 Lombok 注解的 MyBatis-Plus Entity 实体和与其配套的一组 standard CRUD Controller / Service"，并 Review 其生成的依赖路径是否符合你的层级结构。
 
 ### 实战整合与规范（Day 5-周末）
 
-- [ ] **全局响应封装**：定义并使用规范化的统一 API 返回实体（`Result<T>`）。
-- [ ] **全局异常处理**：编写 `@ControllerAdvice` 截获常见业务异常并格式化输出。
-- [ ] **校验框架集成**：引入 `spring-boot-starter-validation` 处理接口入参校验。
-- [ ] **单元测试入门**：引入 `spring-boot-starter-test`，写一个基于 JUnit 5 和 Mockito 的基础测试用例，掌握 AAA 模式（Arrange-Act-Assert）。
-- [ ] **工程打包与运行**：在项目根目录运行 `mvn clean package` 体验 Fat JAR 的打包机制，并用 `java -jar` 命令将服务独立运行起来。
+- [x] **全局响应封装**：定义并使用规范化的统一 API 返回实体（`Result<T>`）。
+- [x] **全局异常处理**：编写 `@ControllerAdvice` 截获常见业务异常并格式化输出。
+- [x] **校验框架集成**：引入 `spring-boot-starter-validation` 处理接口入参校验。
+- [x] **单元测试入门**：引入 `spring-boot-starter-test`，写一个基于 JUnit 5 和 Mockito 的基础测试用例，掌握 AAA 模式（Arrange-Act-Assert）。
+- [x] **工程打包与运行**：在项目根目录运行 `mvn clean package` 体验 Fat JAR 的打包机制，并用 `java -jar` 命令将服务独立运行起来。
 - [ ] **周末闭环实战**：写一个带有 JWT 鉴权的"书籍管理系统"，打通 Controller -> Service -> Mapper -> DB 的完整闭环。
 
 ---
