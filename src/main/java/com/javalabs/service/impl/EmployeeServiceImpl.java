@@ -1,57 +1,54 @@
 package com.javalabs.service.impl;
 
 import com.javalabs.exception.ResourceNotFoundException;
+import com.javalabs.mapper.EmployeeMapper;
 import com.javalabs.model.Employee;
 import com.javalabs.service.EmployeeService;
-import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 员工服务实现类
- * 演示 Spring Bean 的生命周期
+ * 员工服务实现类 (已迁移至 MyBatis-Plus 持久化方案)
+ * 移除内存 Map 存储，改为调用 EmployeeMapper
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor // Lombok 会自动生成包含 final 字段的构造器，实现构造器注入
 public class EmployeeServiceImpl implements EmployeeService {
 
-    // 使用内存 Map 模拟数据库
-    private final Map<String, Employee> repository = new ConcurrentHashMap<>();
-
-    @PostConstruct
-    public void init() {
-        log.info("🌟 [IoC 验证] EmployeeServiceImpl 实例已由容器创建！");
-        // 修正：增加符合 Record 定义的 skills 列表参数
-        repository.put("1", new Employee("1", "Sun", "Dev", 50000.0, List.of("Java", "Spring")));
-        log.info("🌟 [IoC 验证] @PostConstruct 钩子触发：预置测试数据加载完毕。");
-    }
+    private final EmployeeMapper employeeMapper;
 
     @Override
     public List<Employee> getAllEmployees() {
-        return new ArrayList<>(repository.values());
+        // selectList(null) 表示没有任何查询条件，即查询全部
+        return employeeMapper.selectList(null);
     }
 
     @Override
     public Optional<Employee> getEmployeeById(String id) {
-        return Optional.ofNullable(repository.get(id));
+        // 注意：底层 ID 变更为 Long，这里做一次转换
+        Employee employee = employeeMapper.selectById(Long.valueOf(id));
+        return Optional.ofNullable(employee);
     }
 
     @Override
     public Employee createEmployee(Employee employee) {
-        repository.put(employee.id(), employee);
+        // 调用 MP 的 insert 方法
+        employeeMapper.insert(employee);
+        log.info("🌟 [DB 实战] 已持久化新员工：{}，自动回填 ID：{}", employee.getName(), employee.getId());
         return employee;
     }
 
     @Override
     public Employee updateEmployee(String id, Employee employee) {
-        if (repository.containsKey(id)) {
-            repository.put(id, employee);
+        // 设置 ID 确保更新正确
+        employee.setId(Long.valueOf(id));
+        int rows = employeeMapper.updateById(employee);
+        if (rows > 0) {
             return employee;
         }
         throw new ResourceNotFoundException("找不到 ID 为 " + id + " 的员工");
@@ -59,6 +56,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public void deleteEmployee(String id) {
-        repository.remove(id);
+        employeeMapper.deleteById(Long.valueOf(id));
+        log.info("🌟 [DB 实战] 已从数据库删除员工 ID：{}", id);
     }
 }
