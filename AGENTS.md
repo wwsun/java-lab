@@ -35,8 +35,7 @@
 
 ### 必须使用
 
-- **Java 17** 现代语法特性优先：Records、`var`、Switch 模式匹配、文本块（优先使用以降低学习成本）。
-- **Java 21** 特性（如虚拟线程 `Thread.ofVirtual()`）：在必要或涉及高并发演进展示时可以使用，**但必须额外说明**其与传统做法（如 `ExecutorService`）的区别。
+- **SDKMAN**: 必须使用 SDKMAN 管理 Java 版本。项目根目录下已有 `.sdkmanrc`。
 - **Spring Boot 3.x**（涉及 Web/服务时）
 - **Lombok**（Entity 类必须使用注解，禁止手写 getter/setter）
 - **MyBatis-Plus**（ORM 首选，而非 JPA/Hibernate）

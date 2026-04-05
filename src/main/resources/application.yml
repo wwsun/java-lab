@@ -1,0 +1,46 @@
+# Spring Boot 核心配置
+spring:
+  # 数据源配置
+  datasource:
+    # 默认使用 H2 内存数据库，方便开发即用
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:java_labs;DB_CLOSE_DELAY=-1;MODE=MySQL
+    username: sa
+    password: 
+    
+    # 数据库初始化配置
+    sql:
+      init:
+        mode: always
+    
+    # HikariCP 连接池精细调优
+    hikari:
+      # 连接池中允许的最大并发连接数（默认 10）。
+      # 黄金法则：根据 CPU 核心数与磁盘 I/O 测定，通常设为 (core_count * 2) + effective_spindle_count
+      maximum-pool-size: 10
+      # 连接池中保持的最小空闲连接数
+      minimum-idle: 5
+      # 等待连接池分配连接的最大时长（毫秒），超过将抛出 SQLException
+      connection-timeout: 30000
+      # 一个连接在池中可以保持空闲的最长时长
+      idle-timeout: 600000
+      # 一个连接在池中允许生存的最长时长（建议比数据库超时短 30 秒）
+      max-lifetime: 1800000
+      # 用于测试连接是否有效的 SQL
+      connection-test-query: SELECT 1
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  configuration:
+    # 开启控制台 SQL 日志展示，对标 Node.js 开发时的查询日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 开启下划线转驼峰命名映射（如 user_id -> userId）
+    map-underscore-to-camel-case: true
+  # 指定 XML 映射文件的位置
+  mapper-locations: classpath:mapper/*.xml
+
+# 日志级别配置
+logging:
+  level:
+    # 设置 com.javalabs 的日志级别为 DEBUG，以便观察框架行为
+    com.javalabs: debug

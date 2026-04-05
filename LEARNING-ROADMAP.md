@@ -78,12 +78,12 @@
 > [!info] ORM 选型建议
 > 国内环境中不需要死磕 JPA/Hibernate，直接学习 **MyBatis** 和 **MyBatis-Plus**。它类似于 Prisma 或 TypeORM，且在处理复杂 SQL 时更具灵活性。同时，MyBatis-Plus 通过内置方法帮你避免裸写 SQL，但遇到复杂场景时仍需理解 SQL 本身。
 
-- [ ] **关系型数据库基础**：理解表、字段、主键（Primary Key）、外键（Foreign Key）的概念，编写一组带有关联关系的 DDL（如 `users` 表和 `tasks` 表的一对多关系）。
-- [ ] **索引认知**：理解索引的本质（B+树）和使用时机——查询条件字段、关联字段（外键）、排序字段应加索引；低基数字段（如性别）不适合单独加索引。
-- [ ] **依赖引入与配置**：引入 MyBatis-Plus 及 MySQL 驱动依赖。
-- [ ] **连接池调优**：在配置文件中设置并熟悉 HikariCP 核心配置。
-- [ ] **ORM 层搭建**：编写基于数据表的 Entity 实体类（Lombok 注解）及对应的 Mapper 接口。
-- [ ] **CRUD 测试**：利用 MyBatis-Plus 内置的基础方法（`selectById`, `insert`, `updateById`, `deleteById`）体验增删改查。
+- [x] **关系型数据库基础**：理解表、字段、主键（Primary Key）、外键（Foreign Key）的概念，编写一组带有关联关系的 DDL（如 `users` 表和 `tasks` 表的一对多关系）。
+- [x] **索引认知**：理解索引的本质（B+树）和使用时机——查询条件字段、关联字段（外键）、排序字段应加索引；低基数字段（如性别）不适合单独加索引。
+- [x] **依赖引入与配置**：引入 MyBatis-Plus 及 MySQL 驱动依赖。
+- [x] **连接池调优**：在配置文件中设置并熟悉 HikariCP 核心配置。
+- [x] **ORM 层搭建**：编写基于数据表的 Entity 实体类（Lombok 注解）及对应的 Mapper 接口。
+- [x] **CRUD 测试**：利用 MyBatis-Plus 内置的基础方法（`selectById`, `insert`, `updateById`, `deleteById`）体验增删改查。
 - [ ] **N+1 查询问题**：理解 ORM 的 N+1 查询陷阱（类比 Prisma 的 `include` / TypeORM 的 `eager loading`）。在 MyBatis-Plus 中通过 `@Select` 联表查询或自定义 XML Mapper 中的 `<resultMap>` + `<association>` 解决。
 - [ ] **🤖 AI 骨架生成提效**：跳过手打模板，尝试对 AI 发送指令："基于这份 DDL SQL，生成自带 Lombok 注解的 MyBatis-Plus Entity 实体和与其配套的一组标准 CRUD Controller / Service"，并 Review 其生成的依赖路径是否符合你的层级结构。
 
