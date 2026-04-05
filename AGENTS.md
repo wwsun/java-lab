@@ -40,6 +40,7 @@
 - **Lombok**（Entity 类必须使用注解，禁止手写 getter/setter）
 - **MyBatis-Plus**（ORM 首选，而非 JPA/Hibernate）
 - **HikariCP** 连接池
+- **Alibaba P3C**: 生成代码必须严格遵循 [p3c_guidelines.md](./agent_docs/p3c_guidelines.md)
 - 代码注释使用**简体中文**；变量名、方法名、类名使用**英文**
 
 ### 生产代码中绝对禁止
@@ -128,7 +129,8 @@
 生成任何 Java 代码时，必须满足：
 
 1. **版本声明**：若涉及 Spring，文件头注释说明 Spring Boot 版本要求
-2. **中文注释**：关键逻辑必须有中文行内注释
-3. **测试覆盖**：生成业务逻辑代码时，同时附上 JUnit 5 测试骨架（AAA 模式）
-4. **现代化检查**：生成前自查是否使用了禁止的旧版 API
-5. **Lombok 优先**：Entity/DTO 类必须使用 Lombok，不允许手写 getter/setter
+2. **规约遵循**：代码逻辑必须符合 [p3c_guidelines.md](./agent_docs/p3c_guidelines.md) 中的阿里巴巴 Java 开发规约
+3. **中文注释**：关键逻辑必须有中文行内注释
+4. **测试覆盖**：生成业务逻辑代码时，同时附上 JUnit 5 测试骨架（AAA 模式）
+5. **现代化检查**：生成前自查是否使用了禁止的旧版 API
+6. **Lombok 优先**：Entity/DTO 类必须使用 Lombok，不允许手写 getter/setter
