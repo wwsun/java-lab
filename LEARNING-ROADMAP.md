@@ -46,10 +46,10 @@
 - [x] **加锁解决冲突**：分别使用 `synchronized` 关键字和 `ReentrantLock` 修复并发冲突。
 - [x] **线程池基础**：了解 `ExecutorService` 的基本用法，理解线程池相比手动创建线程的优势。
 - [x] **线程安全集合**：单独测试 `ConcurrentHashMap`，理解何为线程安全的集合操作。 [16-concurrent-hashmap-guide.md](./guide/16-concurrent-hashmap-guide.md)
-- [/] **线程池参数配置 (Optional)**：使用 `ThreadPoolExecutor` 创建自定义线程池，对比不同核心线程数、最大线程数及拒绝策略的表现。 [17-threadpool-tuning-guide.md](./guide/17-threadpool-tuning-guide.md)
-- [/] **JDK 21 虚拟线程体验 (Optional, 需要 JDK 21)**：用 `Thread.ofVirtual()` 和 `Executors.newVirtualThreadPerTaskExecutor()` 感受轻量级并发——底层自动非阻塞 I/O，代码却像同步般直白。类比 Node.js 事件循环的 M:N 映射思想。 [19-virtual-threads-intro.md](./guide/19-virtual-threads-intro.md)
-- [/] **多线程调试 (Optional)**：尝试在 IDEA 中将断点设置为 Thread 模式，观察并控制多线程的交替执行。 [18-multithreading-debugging.md](./guide/18-multithreading-debugging.md)
-- [/] **[第一周终极实战验收]：多线程文件内容扫描器 (CLI Tool)**
+- [x] **线程池参数配置 (Optional)**：使用 `ThreadPoolExecutor` 创建自定义线程池，对比不同核心线程数、最大线程数及拒绝策略的表现。 [17-threadpool-tuning-guide.md](./guide/17-threadpool-tuning-guide.md)
+- [x] **JDK 21 虚拟线程体验 (Optional, 需要 JDK 21)**：用 `Thread.ofVirtual()` 和 `Executors.newVirtualThreadPerTaskExecutor()` 感受轻量级并发——底层自动非阻塞 I/O，代码却像同步般直白。类比 Node.js 事件循环的 M:N 映射思想。 [19-virtual-threads-intro.md](./guide/19-virtual-threads-intro.md)
+- [x] **多线程调试 (Optional)**：尝试在 IDEA 中将断点设置为 Thread 模式，观察并控制多线程的交替执行。 [18-multithreading-debugging.md](./guide/18-multithreading-debugging.md)
+- [x] **[第一周终极实战验收]：多线程文件内容扫描器 (CLI Tool)**
 
 ---
 
@@ -65,13 +65,13 @@
 
 ### Spring Boot 启蒙（Day 1-2）
 
-- [/] **脚手架生成**：使用 [Spring Initializr](https://start.spring.io/) 平台生成脚手架（选用 Java 17, Spring Boot 3.x, Maven, Spring Web）并导入 IDEA。
-- [ ] **IoC 与 DI 验证**：写两组类验证有无 `@Autowired` 时的实例化过程及依赖关系的绑定。
-- [ ] **RESTful API 全方法实操**：编写 `@RestController` 实现完整的 `GET`/`POST`/`PUT`/`DELETE` 接口，覆盖资源的增删改查。
-- [ ] **RESTful 接口设计规范**：掌握 URL 命名规范（名词复数 `/api/users`、嵌套资源 `/api/users/{id}/tasks`）、HTTP Method 语义映射。
-- [ ] **HTTP 状态码规范**：在接口中正确使用 `ResponseEntity` 返回语义化状态码——`200 OK`、`201 Created`、`400 Bad Request`、`401 Unauthorized`、`403 Forbidden`、`404 Not Found`、`500 Internal Server Error`。
-- [ ] **参数捕获能力测试**：编写验证代码成功通过 `@PathVariable`, `@RequestParam`, `@RequestBody` 获取前端传入的数据。
-- [ ] **中间件机制理解**：掌握 Spring Boot 的 `Filter`（类比 Express middleware）和 `HandlerInterceptor`（类比 NestJS Guard/Interceptor）的执行顺序与应用场景，编写一个请求日志记录 Filter。
+- [x] **脚手架生成**：使用 [Spring Initializr](https://start.spring.io/) 平台生成脚手架（选用 Java 17, Spring Boot 3.x, Maven, Spring Web）并导入 IDEA。
+- [x] **IoC 与 DI 验证**：写两组类验证有无 `@Autowired` 时的实例化过程及依赖关系的绑定。
+- [x] **RESTful API 全方法实操**：编写 `@RestController` 实现完整的 `GET`/`POST`/`PUT`/`DELETE` 接口，覆盖资源的增删改查。 <!-- @id: task-04-02 -->
+- [x] **RESTful 接口设计规范**：掌握 URL 命名规范（名词复数 `/api/users`、嵌套资源 `/api/users/{id}/tasks`）、HTTP Method 语义映射。 <!-- @id: task-04-03 -->
+- [x] **HTTP 状态码规范**：在接口中正确使用 `ResponseEntity` 返回语义化状态码——`200 OK`、`201 Created`、`400 Bad Request`、`401 Unauthorized`、`403 Forbidden`、`404 Not Found`、`500 Internal Server Error`。 <!-- @id: task-04-04 -->
+- [x] **参数捕获能力测试**：编写验证代码成功通过 `@PathVariable`, `@RequestParam`, `@RequestBody` 获取前端传入的数据。 <!-- @id: task-04-05 -->
+- [x] **中间件机制理解**：掌握 Spring Boot 的 `Filter`（类比 Express middleware）和 `HandlerInterceptor`（类比 NestJS Guard/Interceptor）的执行顺序与应用场景，编写一个请求日志记录 Filter。 <!-- @id: task-04-06 -->
 
 ### 数据库接入实战（Day 3-4）
 
