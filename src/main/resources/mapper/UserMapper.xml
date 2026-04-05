@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.javalabs.mapper.UserMapper">
+
+    <!-- 
+        ResultMap: MyBatis 的精髓
+        用于定义数据库列名与 Java 对象属性之间的复杂映射关系
+    -->
+    <resultMap id="UserWithTasksMap" type="com.javalabs.entity.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+
+        <!-- 
+            collection: 处理“一对多”关系
+            property: 对应 User 类中的 tasks 字段
+            ofType: 集合中元素的类型 (Task)
+        -->
+        <collection property="tasks" ofType="com.javalabs.entity.Task">
+            <id property="id" column="task_id"/>
+            <result property="userId" column="user_id"/>
+            <result property="title" column="title"/>
+            <result property="status" column="status"/>
+            <result property="createdAt" column="task_created_at"/>
+        </collection>
+    </resultMap>
+
+    <!-- 
+        解决 N+1 问题的 SQL 语句
+        通过 LEFT JOIN 一次性查出所有用户及其关联的任务
+    -->
+    <select id="selectUserWithTasks" resultMap="UserWithTasksMap">
+        SELECT 
+            u.*,
+            t.id AS task_id,
+            t.title,
+            t.status,
+            t.created_at AS task_created_at
+        FROM users u
+        LEFT JOIN tasks t ON u.id = t.user_id
+        ORDER BY u.id ASC
+    </select>
+
+    <!-- 
+        根据用户名模糊删除任务
+        逻辑：通过子查询找到匹配的用户 ID，并从 tasks 表中删除对应记录
+    -->
+    <delete id="deleteTasksByUsernameLike">
+        DELETE FROM tasks
+        WHERE user_id IN (
+            SELECT id FROM users
+            WHERE username LIKE CONCAT('%', #{username}, '%')
+        )
+    </delete>
+
+</mapper>
