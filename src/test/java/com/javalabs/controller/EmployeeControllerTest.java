@@ -48,7 +48,8 @@ class EmployeeControllerTest {
         mockMvc.perform(get("/api/employees"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].name").value("Alice"));
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data[0].name").value("Alice"));
     }
 
     @Test
@@ -64,8 +65,8 @@ class EmployeeControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newEmp)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value("123"))
-                .andExpect(jsonPath("$.name").value("John"));
+                .andExpect(jsonPath("$.data.id").value("123"))
+                .andExpect(jsonPath("$.data.name").value("John"));
     }
 
     @Test
@@ -82,7 +83,7 @@ class EmployeeControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateReq)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Alice Updated"));
+                .andExpect(jsonPath("$.data.name").value("Alice Updated"));
     }
 
     @Test
@@ -90,7 +91,8 @@ class EmployeeControllerTest {
     void shouldDeleteEmployee() throws Exception {
         // Act & Assert
         mockMvc.perform(delete("/api/employees/1"))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$.code").value(200));
 
         verify(employeeService, times(1)).deleteEmployee("1");
     }
@@ -104,7 +106,7 @@ class EmployeeControllerTest {
         // Act & Assert
         mockMvc.perform(get("/api/employees/non-existent"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.code").value(404))
                 .andExpect(jsonPath("$.message").exists());
     }
 }
