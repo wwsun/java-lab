@@ -40,6 +40,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Bean Validation: 处理接口入参校验的利器 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
         <!-- MyBatis-Plus Starter: Spring Boot 3 专用，提供增强型 CRUD 能力 -->
         <dependency>
             <groupId>com.baomidou</groupId>
