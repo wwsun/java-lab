@@ -1,11 +1,15 @@
 package com.javalabs.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.javalabs.model.Employee;
+import com.javalabs.entity.Employee;
+import com.javalabs.interceptor.JwtInterceptor;
 import com.javalabs.service.EmployeeService;
+import com.javalabs.util.JwtUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -24,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * 员工管理 REST 接口测试类
  * 使用 @WebMvcTest 仅启动 Web 层上下文，不启动整个 Spring Boot 环境 (快且聚焦)
  */
-@WebMvcTest(EmployeeController.class)
+@WebMvcTest(controllers = EmployeeController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @DisplayName("EmployeeController RESTful CRUD 综合验证")
 class EmployeeControllerTest {
 
@@ -36,6 +40,18 @@ class EmployeeControllerTest {
 
     @MockBean
     private EmployeeService employeeService;
+
+    @MockBean
+    private JwtInterceptor jwtInterceptor;
+
+    @MockBean
+    private JwtUtils jwtUtils;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        // 强制拦截器放行
+        when(jwtInterceptor.preHandle(any(), any(), any())).thenReturn(true);
+    }
 
     @Test
     @DisplayName("测试 GET /api/employees - 应该返回员工列表")

@@ -1,6 +1,6 @@
 package com.javalabs.mapper;
 
-import com.javalabs.model.Employee;
+import com.javalabs.entity.Employee;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

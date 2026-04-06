@@ -47,6 +47,7 @@ public class User {
      * BCrypt 加密后的密文
      */
     @NotBlank(message = "密码不能为空")
+    @Size(min = 6, message = "密码长度至少为 6 位")
     private String password;
 
     /**
@@ -57,12 +58,12 @@ public class User {
     /**
      * 创建时间
      */
-    private LocalDateTime createTime;
+    private LocalDateTime createdAt;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updateTime;
+    private LocalDateTime updatedAt;
 
     /**
      * 关联的任务列表 (逻辑关联)

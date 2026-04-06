@@ -39,7 +39,7 @@ public class BookServiceImpl implements BookService {
         }
         
         // 按创建时间降序排序
-        queryWrapper.orderByDesc(Book::getCreateTime);
+        queryWrapper.orderByDesc(Book::getCreatedAt);
         
         return bookMapper.selectPage(page, queryWrapper);
     }

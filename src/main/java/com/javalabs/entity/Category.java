@@ -25,6 +25,13 @@ public class Category {
      */
     private Long parentId;
     
-    private LocalDateTime createTime;
-    private LocalDateTime updateTime;
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createdAt;
+ 
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updatedAt;
 }

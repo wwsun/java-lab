@@ -37,9 +37,12 @@ public class BorrowRecord {
     private LocalDate returnDate;
     
     /**
+     * 创建时间
+     */
+    private LocalDateTime createdAt;
+    
+    /**
      * 状态: 0-借出, 1-已还
      */
     private Integer status;
-    
-    private LocalDateTime createTime;
 }

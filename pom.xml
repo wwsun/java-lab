@@ -53,6 +53,13 @@
             <version>3.5.9</version>
         </dependency>
 
+        <!-- MyBatis-Plus JSqlParser: 3.5.9+ 分页插件必需 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <version>3.5.9</version>
+        </dependency>
+
         <!-- MySQL 驱动: 生产环境常用的关系型数据库驱动 -->
         <dependency>
             <groupId>com.mysql</groupId>

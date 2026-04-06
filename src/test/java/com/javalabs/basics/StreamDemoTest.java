@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.javalabs.model.Employee;
+import com.javalabs.entity.Employee;
 import static com.javalabs.basics.StreamDemo.*;
 import static org.junit.jupiter.api.Assertions.*;
 

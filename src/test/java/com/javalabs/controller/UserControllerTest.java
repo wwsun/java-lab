@@ -2,10 +2,14 @@ package com.javalabs.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javalabs.entity.User;
+import com.javalabs.interceptor.JwtInterceptor;
 import com.javalabs.service.UserService;
+import com.javalabs.util.JwtUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -23,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * 用户控制器测试类
  * 重点验证 Bean Validation 校验逻辑
  */
-@WebMvcTest(UserController.class)
+@WebMvcTest(controllers = UserController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @DisplayName("UserController 参数校验与 CRUD 验证")
 class UserControllerTest {
 
@@ -35,6 +39,18 @@ class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private JwtUtils jwtUtils;
+
+    @MockBean
+    private JwtInterceptor jwtInterceptor;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        // 强制拦截器放行，以便测试 Controller 逻辑
+        when(jwtInterceptor.preHandle(any(), any(), any())).thenReturn(true);
+    }
 
     @Test
     @DisplayName("测试 POST /api/users (有效数据) - 应该返回 201 Success")

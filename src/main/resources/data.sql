@@ -5,10 +5,10 @@ INSERT INTO categories (name, parent_id) VALUES ('Java 编程', 1);
 INSERT INTO categories (name, parent_id) VALUES ('Python 编程', 1);
 
 -- 初始化管理员用户 (密码: password123)
--- BCrypt 密文: $2a$10$8uXn3pKOnzh8X1B86Kk.O8X.9fC6Kk.O8X.9fC6Kk.O8X.9fC6
+-- BCrypt 密文: $2a$10$UMxy0Qkhq/L2s3DnDVce0uXTx9dDhVGziUlh.mN/DeINfaDiSp8JC
 INSERT INTO users (username, email, password, role) VALUES 
-('admin', 'admin@example.com', '$2a$10$8uXn3pKOnzh8X1B86Kk.O8X.9fC6Kk.O8X.9fC6Kk.O8X.9fC6', 'ADMIN'),
-('user1', 'user1@example.com', '$2a$10$8uXn3pKOnzh8X1B86Kk.O8X.9fC6Kk.O8X.9fC6Kk.O8X.9fC6', 'USER');
+('admin', 'admin@example.com', '$2a$10$UMxy0Qkhq/L2s3DnDVce0uXTx9dDhVGziUlh.mN/DeINfaDiSp8JC', 'ADMIN'),
+('user1', 'user1@example.com', '$2a$10$UMxy0Qkhq/L2s3DnDVce0uXTx9dDhVGziUlh.mN/DeINfaDiSp8JC', 'USER');
 
 -- 初始化书籍数据
 INSERT INTO books (title, author, isbn, category_id, price, stock, description) VALUES 

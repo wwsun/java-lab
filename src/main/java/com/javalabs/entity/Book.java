@@ -51,6 +51,6 @@ public class Book {
      */
     private String description;
     
-    private LocalDateTime createTime;
-    private LocalDateTime updateTime;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

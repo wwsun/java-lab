@@ -88,7 +88,7 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
         return borrowRecordMapper.selectList(
             new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<BorrowRecord>()
                 .eq(BorrowRecord::getUserId, userId)
-                .orderByDesc(BorrowRecord::getCreateTime)
+                .orderByDesc(BorrowRecord::getCreatedAt)
         );
     }
 }

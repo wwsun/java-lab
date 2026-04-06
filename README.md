@@ -4,7 +4,7 @@
 
 ## 项目环境
 
-- **JDK版本**: 17
+- **JDK版本**: 21
 - **构建工具**: Maven
 - **IDE**: IntelliJ IDEA
 - **开发框架**: Sprint Boot 3
