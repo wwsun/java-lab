@@ -40,7 +40,7 @@
 - **Lombok**（Entity 类必须使用注解，禁止手写 getter/setter）
 - **MyBatis-Plus**（ORM 首选，而非 JPA/Hibernate）
 - **HikariCP** 连接池
-- **MySQL 8.4** 开发环境使用 mysql@8.4 数据库，使用 `brew services start mysql@8.4` 启动数据库服务
+- **MySQL 8.4 / Redis 7**: 必须使用 `docker compose up -d` 启动开发环境所需的中间件容器。
 - **Alibaba P3C**: 生成代码必须严格遵循 [p3c_guidelines.md](./agent_docs/p3c_guidelines.md)
 - 代码注释使用**简体中文**；变量名、方法名、类名使用**英文**
 - 文档中如果需要引用其他文件，使用相对路径

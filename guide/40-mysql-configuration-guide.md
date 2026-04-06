@@ -1,6 +1,6 @@
-# 40-从 H2 迁移到 MySQL：生产级数据库配置指南
+# 40-从 H2 迁移到 MySQL 与 Redis：生产级基础设施配置指南
 
-在 Java 开发中，本地开发常用 H2 内存数据库以实现“零配置即开即用”。但在进阶阶段或准备上线时，切换到 **MySQL** 是必经之路。
+在 Java 开发中，本地开发常用 H2 内存数据库以实现“零配置即开即用”。但在进阶阶段或准备上线时，切换到 **MySQL** (持久化存储) 和 **Redis** (高速缓存) 是必经之路。
 
 ---
 
@@ -77,13 +77,20 @@ mysql -u root -p
 
 ## 一、 依赖检查 (pom.xml)
 
-项目已预配置了 MySQL 的官方驱动。请确保 `pom.xml` 中包含以下依赖：
+项目已预配置了 MySQL 和 Redis 的驱动。请确保 `pom.xml` 中包含以下依赖：
 
 ```xml
+<!-- MySQL 驱动 -->
 <dependency>
     <groupId>com.mysql</groupId>
     <artifactId>mysql-connector-j</artifactId>
     <scope>runtime</scope>
+</dependency>
+
+<!-- Redis 启动器 -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
 </dependency>
 ```
 
@@ -91,60 +98,40 @@ mysql -u root -p
 
 ## 二、 核心配置 (application.yml)
 
-你需要修改 `src/main/resources/application.yml` 中的 `datasource` 部分。
+你需要修改 `src/main/resources/application.yml` 中的配置。
 
-### 2.1 修改连接信息
+### 2.1 修改数据源信息
 
 将原有的 H2 配置注释，并替换为 MySQL 配置。
-
-> [!IMPORTANT]
-> 请确保你本地已经安装了 MySQL，并预先创建了对应的数据库（如 `java_labs`）。
 
 ```yaml
 spring:
   datasource:
-    # 1. 驱动类
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # 2. 连接 URL (注意时区 serverTimezone 和字符集 useUnicode)
     url: jdbc:mysql://localhost:3306/java_labs?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    # 3. 账号密码
     username: root
     password: your_password
+  
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: # 如果没设密码则留空
 ```
 
 ---
 
 ## 三、 使用 Docker 快速启动 (推荐)
 
-对于习惯 Node.js 开发流程的用户，使用 `Docker` 启动数据库是最快的方式。
+对于习惯 Node.js 开发流程的用户，使用 `Docker` 启动中间件是最快的方式。
 
 ### 3.1 什么是 Docker Compose？
 
 如果说 Docker 是一个“集装箱”，那么 **Docker Compose** 就是“调度员”。它允许你通过一个 YAML 配置文件来定义和管理多个 Docker 容器。
 
-对于本项目，我们只需要一个 `docker-compose.yml` 文件，就能一键完成 MySQL 的拉取、端口映射、环境变量设置和数据持久化。
+### 3.2 启动 MySQL & Redis 容器
 
-#### 1. 在 macOS 上安装 Docker Compose
-如果你没有安装 Docker Desktop，可以通过 Homebrew 单独安装命令行工具：
-```bash
-brew install docker-compose
-```
-
-#### 2. 核心常用命令
-学会以下 4 个命令，就能应对 90% 的开发场景：
-
-- **一键启动**: `docker-compose up -d`
-  - `-d` (detached) 表示在后台运行，不会占用你的终端窗口。
-- **查看状态**: `docker-compose ps`
-  - 确认容器是否正在运行 (State: Up) 以及端口映射是否正确。
-- **停止并销毁**: `docker-compose down`
-  - 停止运行中的容器并将其删除。**注意：** 挂载的数据卷（`./mysql_data`）会被保留，数据不会丢失。
-- **实时日志**: `docker-compose logs -f`
-  - 如果数据库启动失败，通过此命令查看具体的错误信息。
-
-### 3.2 启动 MySQL 容器
-
-在项目根目录下创建一个 `docker-compose.yml` 文件：
+在项目根目录下已经提供了一个 `docker-compose.yml` 文件：
 
 ```yaml
 version: '3.8'
@@ -152,13 +139,23 @@ services:
   mysql:
     image: mysql:8.0
     container_name: java-labs-mysql
-    ports:
-      - '3306:3306'
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: java_labs
+    ports:
+      - '3306:3306'
     volumes:
       - ./mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:7-alpine
+    container_name: java-labs-redis
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - ./redis_data:/data
 ```
 
 运行命令启动：
@@ -179,31 +176,57 @@ Spring Boot 依然支持通过 `schema.sql` 和 `data.sql` 自动初始化：
 spring:
   sql:
     init:
-      mode: always # 每次启动都执行，注意 MySQL 中表已存在时可能会报错
+      mode: always # 每次启动都执行
 ```
 
 > [!TIP]
 > 在 MySQL 中，建议在 SQL 语句开头加上 `DROP TABLE IF EXISTS xxx;` 以支持重复运行。
 
-### 4.2 手动初始化 (生产推荐)
-
-使用管理工具（如 Navicat, DBeaver 或命令行）直接运行 `src/main/resources/schema.sql`。
-
 ---
 
 ## 五、 Node.js 开发者视角对比
 
-| 特性         | Node.js (Prisma/Knex) | Java (Spring Boot)                       |
-| :----------- | :-------------------- | :--------------------------------------- |
-| **连接池**   | `generic-pool`        | `HikariCP` (默认，性能极佳)              |
-| **迁移工具** | `prisma migrate`      | `Flyway` 或 `Liquibase` (本阶段暂未引入) |
-| **驱动**     | `mysql2`              | `mysql-connector-j`                      |
-| **配置位置** | `.env`                | `application.yml`                        |
+| 特性 | Node.js (Prisma/Knex) | Java (Spring Boot) |
+| :--- | :--- | :--- |
+| **连接池** | `generic-pool` | `HikariCP` (默认，性能极佳) |
+| **缓存客户端** | `ioredis` / `node-redis` | `Jedis` / `Lettuce` (通过 Spring Data Redis 封装) |
+| **驱动** | `mysql2` | `mysql-connector-j` |
+| **配置位置** | `.env` | `application.yml` |
+
+---
+
+## 六、 Redis 基础：高效缓存的奥秘
+
+作为内存数据库，Redis 的核心价值在于 **速度**。在进入 Java 代码集成前，你需要掌握其核心数据结构及其应用场景。
+
+### 6.1 五大基本数据结构
+
+| 数据结构 | 描述 | 类比 Node.js 对象 | 典型场景 |
+| :--- | :--- | :--- | :--- |
+| **String (字符串)** | 最基本的 KV 存储，支持过期时间。 | `string / number` | 缓存对象 (JSON)、计数器、分布式锁。 |
+| **Hash (哈希)** | 字段和值的映射表。 | `Object / Map` | 存储用户信息、对象属性变更。 |
+| **List (列表)** | 有序字符串列表（双向链表）。 | `Array` | 消息队列、最新动态列表。 |
+| **Set (集合)** | 无序且唯一的字符串集合。 | `Set` | 点赞列表、共同好友（交集计算）。 |
+| **ZSet (有序集合)** | 每个成员关联一个分数 (score) 的集合。 | `N/A` | 排行榜 (分数排名)、延迟队列。 |
+
+### 6.2 典型应用场景
+
+1.  **热点数据缓存 (Cache Aside)**：
+    *   将查询结果存入 Redis，下次查询先看缓存，避免压力全部涌向 MySQL。
+    *   *Node.js 对标*：配合 `Map` 或本地内存缓存，但在分布式环境下必须用 Redis。
+2.  **分布式 Session/Token**：
+    *   存储用户登录态（如 JWT 黑名单），实现多实例共享 Session。
+3.  **计数器与限流**：
+    *   利用 `INCR` 命令实现高并发下的文章阅读量统计或接口防刷。
+4.  **分布式锁 (Redlock)**：
+    *   在多台服务器同时执行定时任务时，确保只有一个实例在运行。
+5.  **排行榜**：
+    *   利用 ZSet 的自动排序特性，实时展示积分榜。
 
 ---
 
 **下一阶段建议**：
 
-1. 更新 `application.yml` 的数据库密码。
-2. 尝试运行 `mvn spring-boot:run` 验证连接。
-3. 如果遇到连接失败，请检查 MySQL 的服务状态及防火墙设置。
+1. 确保 `docker-compose up -d` 已拉起 MySQL 和 Redis。
+2. 更新 `application.yml` 的连接配置。
+3. 查阅 `@guide/40-redis-integration-essentials.md` 学习如何在 Java 中操作这些数据结构。

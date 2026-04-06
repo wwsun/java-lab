@@ -121,9 +121,9 @@
 
 ### Redis 集成与 API 文档（Day 3-4）
 
-- [ ] **Redis 概念与应用场景**：理解 Redis 作为内存数据库的核心定位，梳理典型应用场景——缓存加速、Session 存储、接口限流、排行榜、分布式锁。
-- [ ] **Redis 基础数据结构**：掌握五种核心数据结构的特点与适用场景——`String`（缓存/计数器）、`Hash`（对象字段存储）、`List`（消息队列/最新列表）、`Set`（去重/交集运算）、`Sorted Set`（排行榜/延迟队列）。
-- [ ] **Spring Boot 接入 Redis**：引入 `spring-boot-starter-data-redis` 并配置连接参数，分别通过 `RedisTemplate` 和 `StringRedisTemplate` 操作不同数据结构。
+- [x] **Redis 概念与应用场景**：理解 Redis 作为内存数据库的核心定位，梳理典型应用场景——缓存加速、Session 存储、接口限流、排行榜、分布式锁。
+- [x] **Redis 基础数据结构**：掌握五种核心数据结构的特点与适用场景——`String`（缓存/计数器）、`Hash`（对象字段存储）、`List`（消息队列/最新列表）、`Set`（去重/交集运算）、`Sorted Set`（排行榜/延迟队列）。
+- [x] **Spring Boot 接入 Redis**：引入 `spring-boot-starter-data-redis` 并配置连接参数，分别通过 `RedisTemplate` 和 `StringRedisTemplate` 操作不同数据结构。
 - [ ] **缓存模式实践**：实现 Cache-Aside 模式（先查缓存，未命中再查 DB 并回填缓存）。
 - [ ] **Spring Cache 注解**：使用 `@Cacheable`, `@CacheEvict`, `@CachePut` 简化缓存逻辑。
 - [ ] **缓存常见问题认知**：理解缓存穿透、击穿、雪崩的概念及基础规避思路（空值缓存、随机过期时间）。

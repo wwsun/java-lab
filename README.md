@@ -19,9 +19,14 @@
 
 ## 快速开始
 
-1. 将本项目直接导入或使用 IntelliJ IDEA 打开。
-2. 在终端运行以下命令以验证环境是否正常：
+1. **环境准备**：确保已安装 Docker 和 Docker Compose。在项目根目录下运行以下命令启动中间件（MySQL & Redis）：
+   ```bash
+   docker compose up -d
+   ```
+2. **导入项目**：将本项目直接导入或使用 IntelliJ IDEA 打开。
+3. **运行应用**：在 IDEA 中找到 `JavaLabsApplication.java`，右键点击并选择 `Run` 或 `Debug`。
+4. **验证环境**：在终端运行以下命令以验证环境是否正常：
    ```bash
    mvn clean test
    ```
-3. 遵循 `LEARNING-ROADMAP.md` 里的步骤开始实践代码，逐步构建功能，帮助用户学习和掌握 Java！
+5. **开始学习**：遵循 `LEARNING-ROADMAP.md` 里的步骤开始实践代码，逐步构建功能！
