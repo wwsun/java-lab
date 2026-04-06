@@ -8,6 +8,7 @@ import com.javalabs.service.BookService;
 import com.javalabs.service.BorrowRecordService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -22,7 +23,7 @@ public class BookController {
     private final BorrowRecordService borrowRecordService;
 
     /**
-     * 分页查询书籍
+     * 分页查询书籍 (所有人可访问，但需登录)
      */
     @GetMapping
     public Result<Page<Book>> listBooks(
@@ -35,28 +36,32 @@ public class BookController {
     }
 
     /**
-     * 新增书籍 (仅限管理员)
+     * 新增书籍 (仅限 ADMIN 访问)
+     * 使用 @PreAuthorize 注解自动拦截，不再需要手动检查 request 属性
      */
     @PostMapping
-    public Result<Book> createBook(@RequestBody Book book, HttpServletRequest request) {
-        // 从拦截器存入的 Request Attributes 中获取角色信息
-        String role = (String) request.getAttribute("role");
-        
-        if (!"ADMIN".equals(role)) {
-            return Result.error(403, "Forbidden: Only ADMIN can add books");
-        }
-        
+    @PreAuthorize("hasRole('ADMIN')")
+    public Result<Book> createBook(@RequestBody Book book) {
         return Result.success(bookService.createBook(book));
     }
 
     /**
-     * 借阅书籍
+     * 删除书籍 (仅限 ADMIN 访问)
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Result<Void> deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+        return Result.success(null);
+    }
+
+    /**
+     * 借阅书籍 (所有人需登录)
      */
     @PostMapping("/{id}/borrow")
-    public Result<BorrowRecord> borrowBook(@PathVariable Long id, HttpServletRequest request) {
-        // 模拟从 Token 中解析出的当前用户 ID (实际项目中应从 Token 解析或数据库查询)
-        // 这里为了演示，我们先假设一个当前登录的用户 ID 为 1
-        // 注意：生产代码中应使用 SecurityContextHolder 获取当前用户
+    public Result<BorrowRecord> borrowBook(@PathVariable Long id) {
+        // 模拟从 Token 中解析出的当前用户 ID
+        // 注意：后续我们会演示如何通过 SecurityContextHolder 获取真实 ID
         Long currentUserId = 1L; 
         
         return Result.success(borrowRecordService.borrowBook(currentUserId, id));

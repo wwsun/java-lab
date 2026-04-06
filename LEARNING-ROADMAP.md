@@ -94,7 +94,7 @@
 - [x] **校验框架集成**：引入 `spring-boot-starter-validation` 处理接口入参校验。
 - [x] **单元测试入门**：引入 `spring-boot-starter-test`，写一个基于 JUnit 5 和 Mockito 的基础测试用例，掌握 AAA 模式（Arrange-Act-Assert）。
 - [x] **工程打包与运行**：在项目根目录运行 `mvn clean package` 体验 Fat JAR 的打包机制，并用 `java -jar` 命令将服务独立运行起来。
-- [ ] **周末闭环实战**：写一个带有 JWT 鉴权的"书籍管理系统"，打通 Controller -> Service -> Mapper -> DB 的完整闭环。
+- [x] **周末闭环实战**：写一个带有 JWT 鉴权的"书籍管理系统"，打通 Controller -> Service -> Mapper -> DB 的完整闭环。
 
 ---
 
@@ -113,11 +113,11 @@
 > [!note] 认证方案
 > 采用 **Spring Security + JWT** 方案。Spring Security 是 Spring 生态的事实标准安全框架，虽然学习曲线稍陡，但掌握后能覆盖绝大多数 Web 应用的认证授权需求。类比 NestJS 中的 Guard + Passport 组合。
 
-- [ ] **Spring Security 基础配置**：理解 Security Filter Chain 的工作原理，配置基础安全过滤器链。
-- [ ] **JWT 完整实现**：实现令牌的生成、验证、续期全流程。
-- [ ] **基于注解的权限控制**：使用 `@PreAuthorize` 实现接口级的角色权限控制。
-- [ ] **CORS 跨域配置**：正确配置前后端分离架构下的跨域请求（类比 Express 中的 `cors` 中间件）。
-- [ ] **常见 Web 安全风险防范**：了解并配置对以下攻击的防御措施——SQL 注入（MyBatis-Plus 参数化查询已默认防御）、XSS（输入过滤 + 输出转义）、CSRF（Spring Security 默认启用 CSRF Token）、接口限流防刷（结合 Redis 实现简单的滑动窗口限流）。
+- [x] **Spring Security 基础配置**：理解 Security Filter Chain 的工作原理，配置基础安全过滤器链。
+- [x] **JWT 完整实现**：实现令牌的生成、验证、续期全流程。
+- [x] **基于注解的权限控制**：使用 `@PreAuthorize` 实现接口级的角色权限控制。
+- [x] **CORS 跨域配置**：正确配置前后端分离架构下的跨域请求（类比 Express 中的 `cors` 中间件）。
+- [x] **常见 Web 安全风险防范**：了解并配置对以下攻击的防御措施——SQL 注入（MyBatis-Plus 参数化查询已默认防御）、XSS（输入过滤 + 输出转义）、CSRF（Spring Security 默认启用 CSRF Token）、接口限流防刷（结合 Redis 实现简单的滑动窗口限流）。
 
 ### Redis 集成与 API 文档（Day 3-4）
 
