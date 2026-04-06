@@ -1,24 +1,33 @@
-version: '3.8'
+version: '3.8' # Docker Compose 文件格式版本，对标 API 版本
 
-services:
-  mysql:
-    image: mysql:8.0
-    container_name: java-labs-mysql
-    restart: always
-    environment:
-      # 环境变量：设置 Root 密码及初始数据库名
+services: # 定义项目中需要运行的服务组
+  mysql: # 服务名称，可作为容器间通信的主机名
+    image: mysql:8.0 # 使用的官方镜像及版本标签
+    container_name: java-labs-mysql # 显式指定容器名称，方便命令行管理
+    restart: always # 容器异常退出后自动重启（守护进程模式）
+    environment: # 注入容器内部的环境变量
+      # 数据库初始化配置：设置 Root 密码及创建初始数据库
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: java_labs
       MYSQL_USER: root
       MYSQL_PASSWORD: root
-    ports:
-      - '3306:3306'
-    volumes:
-      # 数据持久化，防止容器删除后数据丢失
+    ports: # 端口映射 [宿主机端口:容器内部端口]
+      - '3306:3306' # 将宿主机的 3306 转发到容器的 3306，使 IDEA 可连接
+    volumes: # 目录挂载（卷映射），实现数据持久化
+      # 将宿主机的 ./mysql_data 映射到 MySQL 的数据目录，防止容器销毁后数据丢失
       - ./mysql_data:/var/lib/mysql
-      # 挂载初始 SQL 脚本 (可选：H2 脚本在容器启动时直接载入)
+      # 挂载初始 SQL 脚本 (可选：若需要容器启动时自动执行 SQL 可取消注释)
       # - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/2.sql
 
-networks:
-  default:
-    name: java-labs-network
+  redis: # Redis 缓存服务
+    image: redis:7-alpine # 使用基于 Alpine 的镜像，体积极小，安全性高
+    container_name: java-labs-redis
+    restart: always
+    ports:
+      - '6379:6379' # 将宿主机的 6379 转发到 Redis 默认端口
+    volumes: # Redis 数据持久化
+      - ./redis_data:/data # 映射 Redis 数据存储目录
+
+networks: # 定义容器网络
+  default: # 默认网络配置
+    name: java-labs-network # 指定网络名称，方便多个 compose 文件共享网络
