@@ -40,8 +40,8 @@ class UserControllerTest {
     @DisplayName("测试 POST /api/users (有效数据) - 应该返回 201 Success")
     void shouldCreateUserWhenDataIsValid() throws Exception {
         // Arrange (准备阶段)
-        User validUser = new User(null, "javaman", "java@test.com", "password123", null, null, null);
-        User savedUser = new User(1L, "javaman", "java@test.com", "password123", null, null, null);
+        User validUser = new User(null, "javaman", "java@test.com", "password123", null, null, null, null);
+        User savedUser = new User(1L, "javaman", "java@test.com", "password123", null, null, null, null);
         when(userService.createUser(any(User.class))).thenReturn(savedUser);
 
         // Act (执行阶段) & Assert (断言阶段)
@@ -57,7 +57,7 @@ class UserControllerTest {
     @DisplayName("测试 POST /api/users (无效邮箱) - 应该返回 400 Bad Request")
     void shouldReturn400WhenEmailIsInvalid() throws Exception {
         // Arrange
-        User invalidUser = new User(null, "javaman", "invalid-email", "password123", null, null, null);
+        User invalidUser = new User(null, "javaman", "invalid-email", "password123", null, null, null, null);
 
         // Act & Assert
         mockMvc.perform(post("/api/users")
@@ -72,7 +72,7 @@ class UserControllerTest {
     @DisplayName("测试 POST /api/users (短密码) - 应该返回 400 Bad Request")
     void shouldReturn400WhenPasswordIsTooShort() throws Exception {
         // Arrange
-        User invalidUser = new User(null, "javaman", "java@test.com", "123", null, null, null);
+        User invalidUser = new User(null, "javaman", "java@test.com", "123", null, null, null, null);
 
         // Act & Assert
         mockMvc.perform(post("/api/users")

@@ -2,7 +2,7 @@ package com.javalabs.service.impl;
 
 import com.javalabs.exception.ResourceNotFoundException;
 import com.javalabs.mapper.EmployeeMapper;
-import com.javalabs.model.Employee;
+import com.javalabs.entity.Employee;
 import com.javalabs.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

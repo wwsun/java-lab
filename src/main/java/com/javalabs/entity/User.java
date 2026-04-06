@@ -1,6 +1,7 @@
 package com.javalabs.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.validation.constraints.Email;
@@ -11,9 +12,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
- * 用户实体类
+ * 用户实体类 (增强版)
  * 对应数据库表: users
  */
 @Data
@@ -38,32 +40,33 @@ public class User {
     /**
      * 邮箱
      */
-    @NotBlank(message = "邮箱不能为空")
     @Email(message = "邮箱格式不正确")
     private String email;
 
     /**
-     * 哈希后的密码
+     * BCrypt 加密后的密文
      */
     @NotBlank(message = "密码不能为空")
-    @Size(min = 6, message = "密码长度至少为 6 位")
     private String password;
 
     /**
-     * 创建时间
-     * 对应字段: created_at (由 application.yml 中的 map-underscore-to-camel-case 自动转换)
+     * 角色: ADMIN / USER
      */
-    private LocalDateTime createdAt;
+    private String role;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updatedAt;
+    private LocalDateTime updateTime;
 
     /**
-     * 关联的任务列表
-     * @TableField(exist = false) 表示该字段非数据库表字段，类比 Prisma 中的 relation
+     * 关联的任务列表 (逻辑关联)
      */
-    @com.baomidou.mybatisplus.annotation.TableField(exist = false)
-    private java.util.List<Task> tasks;
+    @TableField(exist = false)
+    private List<Task> tasks;
 }

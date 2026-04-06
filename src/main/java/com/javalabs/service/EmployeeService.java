@@ -1,6 +1,6 @@
 package com.javalabs.service;
 
-import com.javalabs.model.Employee;
+import com.javalabs.entity.Employee;
 import java.util.List;
 import java.util.Optional;
 

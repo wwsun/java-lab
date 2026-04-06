@@ -1,5 +1,5 @@
 package com.javalabs.exception;
-import com.javalabs.model.Result;
+import com.javalabs.dto.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;

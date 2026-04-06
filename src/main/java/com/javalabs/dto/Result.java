@@ -1,4 +1,4 @@
-package com.javalabs.model;
+package com.javalabs.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

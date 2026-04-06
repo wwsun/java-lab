@@ -1,7 +1,7 @@
 package com.javalabs.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.javalabs.model.Employee;
+import com.javalabs.entity.Employee;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
