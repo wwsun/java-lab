@@ -19,6 +19,11 @@ public interface UserService {
     void deleteUser(Long id);
     
     /**
+     * 根据用户名查询用户
+     */
+    Optional<User> getUserByUsername(String username);
+
+    /**
      * 查询用户及其任务 (自定义复杂查询)
      */
     List<User> getUsersWithTasks();

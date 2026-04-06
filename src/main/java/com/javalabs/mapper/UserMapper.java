@@ -25,4 +25,12 @@ public interface UserMapper extends BaseMapper<User> {
      * @return 删除的任务行数
      */
     int deleteTasksByUsernameLike(@Param("username") String username);
+
+    /**
+     * 精确根据用户名查找用户
+     */
+    default User selectByUsername(String username) {
+        return selectOne(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<User>()
+                .eq(User::getUsername, username));
+    }
 }
