@@ -131,6 +131,7 @@
 
 ### 日志、监控与工程规范（Day 5-周末）
 
+- [ ] **阿里巴巴 Java 开发规约 (P3C)**：阅读并掌握国内 Java 工业界事实标准，建立生产级 Java 代码的心智模型。 [39-alibaba-p3c-coding-guidelines.md](./guide/39-alibaba-p3c-coding-guidelines.md)
 - [ ] **日志体系配置**：配置 SLF4J + Logback，掌握日志分级（DEBUG/INFO/WARN/ERROR）和文件滚动策略。
 - [ ] **应用监控端点**：引入 Spring Boot Actuator，配置健康检查和应用信息端点。
 - [ ] **接口幂等性方案**：理解并实现 Token 令牌机制，确保关键接口的幂等性。

@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: java-labs-mysql
+    restart: always
+    environment:
+      # 环境变量：设置 Root 密码及初始数据库名
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: java_labs
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - '3306:3306'
+    volumes:
+      # 数据持久化，防止容器删除后数据丢失
+      - ./mysql_data:/var/lib/mysql
+      # 挂载初始 SQL 脚本 (可选：H2 脚本在容器启动时直接载入)
+      # - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/2.sql
+
+networks:
+  default:
+    name: java-labs-network

@@ -40,8 +40,10 @@
 - **Lombok**（Entity 类必须使用注解，禁止手写 getter/setter）
 - **MyBatis-Plus**（ORM 首选，而非 JPA/Hibernate）
 - **HikariCP** 连接池
+- **MySQL 8.4** 开发环境使用 mysql@8.4 数据库，使用 `brew services start mysql@8.4` 启动数据库服务
 - **Alibaba P3C**: 生成代码必须严格遵循 [p3c_guidelines.md](./agent_docs/p3c_guidelines.md)
 - 代码注释使用**简体中文**；变量名、方法名、类名使用**英文**
+- 文档中如果需要引用其他文件，使用相对路径
 
 ### 生产代码中绝对禁止
 
@@ -85,9 +87,8 @@
 3. 给出核心代码示例（含中文注释）
 4. 创建面向初学者的学习指南，分章节对关键概念/语法/功能结合具体的例子和类比进行详细的说明
 5. 学习指南中提供开发实践章节，针对配套的 Java 文件提供 "手把手" 的运行指引（设计思路，运行指南，配套代码）
-6. 文档中如果需要引用其他文件，使用相对路径
-7. 最后一行补充 2-3 条扩展阅读（不展开）
-8. 相关文档和指南输出到 guide/ 目录中，便于用户参考和学习，输出文件命名规则为 `{{Number}}-{{SectionName}}.md`，例如 `01-maven-quick-start.md`
+6. 最后一行补充 2-3 条扩展阅读（不展开）
+7. 相关文档和指南输出到 guide/ 目录中，便于用户参考和学习，输出文件命名规则为 `{{Number}}-{{SectionName}}.md`，例如 `01-maven-quick-start.md`
 
 ### 样板代码生成（Boilerplate）
 

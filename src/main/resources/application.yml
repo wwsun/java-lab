@@ -2,16 +2,28 @@
 spring:
   # 数据源配置
   datasource:
-    # 默认使用 H2 内存数据库，方便开发即用
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:java_labs;DB_CLOSE_DELAY=-1;MODE=MySQL
-    username: sa
-    password: 
+    # --- MySQL 生产模式 (已启用) ---
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/java_labs?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root 
+
+    # --- H2 内存模式 (备选) ---
+    # driver-class-name: org.h2.Driver
+    # url: jdbc:h2:mem:java_labs;DB_CLOSE_DELAY=-1;MODE=MySQL
+    # username: sa
+    # password: 
+
+    # --- PostgreSQL 生产模式 (取消注释即可启用) ---
+    # driver-class-name: org.postgresql.Driver
+    # url: jdbc:postgresql://localhost:5432/java_labs
+    # username: postgres
+    # password: your_password
     
     # 数据库初始化配置
     sql:
       init:
-        mode: always
+        mode: always # 若切换到 MySQL 且表已存在，可改为 never
     
     # HikariCP 连接池精细调优
     hikari:
