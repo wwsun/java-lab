@@ -35,6 +35,53 @@
 
 ---
 
+## 2.5 如何在 HTTP 请求中传输 JWT？
+
+在前后端分离的架构中，JWT 通常不通过 Cookie 发送，而是放在 HTTP 请求的 **Header** 中。这是行业的事实标准：
+
+### 标准格式
+```http
+Authorization: Bearer <Your_JWT_Token>
+```
+
+### 核心要点：
+1. **Key**：`Authorization` (首字母大写)。
+2. **Prefix**：`Bearer` (后面跟一个空格)。这个前缀源自 OAuth 规范，意为“持有者”，表示谁持有这个令牌谁就有权限。
+3. **Value**：完整的三段式 JWT 字符串。
+
+### Node.js 发送与校验类比：
+* **前端 (Axios)**：
+  ```javascript
+  axios.get('/api/profile', {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  ```
+* **后端抽取出 Token**：
+  ```javascript
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7); // 截取掉 "Bearer " (7个字符)
+  }
+  ```
+
+---
+
+## 2.6 深度对比：为什么选择 Bearer 而非 Cookie？
+
+这是面试高频题，也是架构设计的核心选择。
+
+| 维度 | Cookie (传统) | Bearer Token (推荐) |
+| :--- | :--- | :--- |
+| **CSRF 攻击** | **风险大**。浏览器会自动携带 Cookie，请求会被伪造。 | **天然免疫**。Header 不会被浏览器自动携带，必须由代码注入。 |
+| **客户端支持** | 仅浏览器支持良好。 | 浏览器、原生 App、小程序、IoT 设备完美支持。 |
+| **跨域 (CORS)** | 限制多，配置复杂。 | 非常自由，是前后端分离/微服务架构的首选。 |
+| **状态管理** | 倾向于配合 Session 使用（有状态）。 | 配合 JWT 使用，实现彻底的**无状态 (Stateless)**。 |
+
+**核心结论：**
+使用 `Authorization: Bearer` 是为了**安全性**（防 CSRF）和**灵活性**（跨平台）。在 Java 领域，由于 Spring Security 默认开启 CSRF 保护，如果你选择 Cookie，配置会变得非常繁琐；而选择 Bearer 则能顺应现代 REST API 的潮流。
+
+---
+
 ## 3. Java 实战：使用 JJWT 库
 
 ### 第一步：添加依赖 (Maven)
@@ -119,7 +166,7 @@ public class JwtUtils {
 ### Q3：JWT 应该存放在 Cookie 还是 LocalStorage？
 *   **LocalStorage**：最简单，Node.js 社区常用。但容易被 XSS 脚本窃取。
 *   **HttpOnly Cookie**：更安全（脚本读不到），但要注意 CSRF 防护。
-*   **结论**：在 Java 现代架构中，前后端分离项目多用 `Authorization: Bearer <token>` 放在 Header 中发送。
+*   **结论**：在 Java 现代架构中，前后端分离项目**强制推荐**使用 `Authorization: Bearer <token>` 放在 Header 中。这种方式天然免疫 CSRF 攻击，且更符合 RESTful API 规范。
 
 ---
 
