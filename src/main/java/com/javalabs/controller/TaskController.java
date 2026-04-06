@@ -2,7 +2,7 @@ package com.javalabs.controller;
 
 import com.javalabs.entity.Task;
 import com.javalabs.exception.ResourceNotFoundException;
-import com.javalabs.model.Result;
+import com.javalabs.dto.Result;
 import com.javalabs.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

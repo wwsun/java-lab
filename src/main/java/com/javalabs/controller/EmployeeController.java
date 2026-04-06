@@ -1,8 +1,8 @@
 package com.javalabs.controller;
 
 import com.javalabs.exception.ResourceNotFoundException;
-import com.javalabs.model.Employee;
-import com.javalabs.model.Result;
+import com.javalabs.entity.Employee;
+import com.javalabs.dto.Result;
 import com.javalabs.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

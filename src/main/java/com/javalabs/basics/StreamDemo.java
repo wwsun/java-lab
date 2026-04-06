@@ -1,6 +1,6 @@
 package com.javalabs.basics;
 
-import com.javalabs.model.Employee;
+import com.javalabs.entity.Employee;
 import java.util.*;
 import java.util.stream.Collectors;
 

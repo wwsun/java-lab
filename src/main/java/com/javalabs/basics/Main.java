@@ -22,7 +22,7 @@ public class Main {
         // 3. Records 记录类：专门承载数据的不可变结构 (类似 TS 里的 Interface)
         record User(String name, String role) {}
         var user = new User("Alex", "Node Developer");
-        System.out.println("user name is: " + user.name);
+        System.out.println("user name is: " + user.name());
         // 4. instanceof 模式匹配 (JDK 16+)：告别强制类型转换
         // 类似 TS 中的类型守卫 (Type Guard)，匹配后自动绑定变量
         Object unknownType = "I am a String";
