@@ -1,59 +1,95 @@
-# Maven 核心体系与 npm 对比指南
+# 01 - Maven 核心体系与 npm 对比指南
 
-对于习惯了 Node.js（npm/yarn/pnpm）体系的前端开发者，Java 世界的包管理与构建工具最具代表性的便是 Maven（以及近几年也非常流行的 Gradle）。在本项目中，我们使用 Maven。
+## 核心心智映射 (Core Mental Mapping)
 
-本文将帮助您快速建立起从 Node.js 到 Java 的工程化心智模型。
+作为 Node.js 开发者，你可能已经习惯了灵活的 `scripts` 和扁平的 `node_modules`。Maven 的哲学则更偏向“约定优于配置” (Convention over Configuration)。
 
-## 核心心智映射 (Mental Model Mapping)
+| 领域 | Node.js / NPM | Java / Maven | 心智映射 |
+| :--- | :--- | :--- | :--- |
+| **元数据文件** | `package.json` | `pom.xml` | 项目的“身份证” |
+| **锁定文件** | `pnpm-lock.yaml` | `<dependencyManagement>` | Maven 通常在父 pom 中控制版本 |
+| **本地缓存** | `node_modules/` | `~/.m2/repository/` | Maven 是全局缓存，非项目内安装 |
+| **依赖名称** | `package-name` | GAV (GroupId:ArtifactId:Version) | Java 使用三维坐标精确定位 |
+| **自定义脚本** | `npm run xxx` | Lifecycle (生命周期) | Maven 使用预定义的流水线阶段 |
 
-### 1. 核心文件对比
+---
 
-| Node.js / TypeScript | Java (Maven) | 核心作用 |
-| --- | --- | --- |
-| `package.json` | `pom.xml` (Project Object Model) | 声明依赖、插件以及项目元信息 |
-| `package-lock.json` / `pnpm-lock.yaml` | (Maven 默认没有锁定文件，通常固定版本号或用 `<dependencyManagement>`) | 锁定具体依赖图 |
-| `node_modules/` | `~/.m2/repository/` (全局) | 第三方依赖被下载存放的目录 |
-| `dist/` 或 `build/` | `target/` | 编译后生成的字节码和最终包存放的位置 |
+## 概念解释 (Conceptual Explanation)
 
-### 2. 依赖管理 (`<dependencies>`)
+### 1. GAV 坐标
+Maven 使用三个维度来唯一定位一个包：
+-   **GroupId**: 组织域名反转（如 `com.google`），类似 `@types` 这种 Scope。
+-   **ArtifactId**: 项目名称（如 `guava`），即包名。
+-   **Version**: 版本号（如 `31.0-jre`）。
 
-在 `pom.xml` 中引入一个包，您需要提供**依赖坐标 (GAV)**，相当于 NPM 中的包名。
+### 2. Maven 生命周期 (Lifecycle)
+Maven 不像 npm scripts 那样随意命名，它内置了严格的流水线。当你执行一个阶段时，它前面的所有阶段都会自动运行：
+`clean` (清理) -> `compile` (编译) -> `test` (单元测试) -> `package` (打包) -> `install` (安装到本地仓库)。
+
+---
+
+## 关键语法和 API 介绍 (Key Syntax and API Introduction)
+
+### 依赖声明
+在 `pom.xml` 中引入依赖：
 
 ```xml
 <dependency>
-    <groupId>org.springframework.boot</groupId> <!-- 类似 NPM 的 scope, 如 @babel -->
-    <artifactId>spring-boot-starter-web</artifactId> <!-- 类似 NPM 的 package name, 如 core -->
-    <version>3.2.0</version> <!-- 类似 NPM 的 version -->
-    <scope>test</scope> <!-- 【注意】如果是 test，相当于放进了 devDependencies -->
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <version>3.3.0</version>
+    <scope>compile</scope> <!-- 作用域：compile(默认), test(类比 devDependencies), runtime, provided -->
 </dependency>
 ```
 
-### 3. 生命周期与脚本 (Lifecycle & Scripts)
+### 常用指令
+-   `mvn clean`: 删除 `target/` 目录。
+-   `mvn compile`: 将 `.java` 编译为 `.class`。
+-   `mvn test`: 运行 JUnit 测试。
+-   `mvn package`: 生成 `.jar` 文件。
+-   `mvn install`: 将 jar 包放入本地 `~/.m2` 目录，供其他本地项目引用。
 
-在 `package.json` 中，我们可以随意定义 `scripts`：
-```json
-"scripts": {
-  "clean": "rm -rf dist",
-  "build": "tsc",
-  "test": "jest"
-}
-```
+---
 
-但在 Maven 中，**生命周期是强制规定好的**，主要分为几个阶段，且依次执行（当你执行后面阶段时，前面阶段会自动被执行）：
+## 典型用法 (Typical Usage)
 
-- `mvn clean`：清除 `target/` 目录（类似 `rm -rf dist`）
-- `mvn compile`：编译业务代码（类似 `tsc`）
-- `mvn test`：执行单元测试（类似 `jest`）
-- `mvn package`：打包成 `.jar` 归档文件（类似 `webpack` 打出 dist 文件）
-- `mvn install`：将打好的 `.jar` 安装到本地电脑的 `~/.m2` 目录中，供其他本地 Java 项目使用。
+### 标准的构建流程
+在终端中，最高频的组合命令是：
 
-所以，日常开发中最高频的命令就是：
 ```bash
-mvn clean install
+mvn clean install -DskipTests
 ```
-它会帮你：清理 -> 编译 -> 跑测试 -> 打包 -> 安装到本地仓库。
+> **Tip**: `-DskipTests` 类似于在紧急发布时跳过繁琐的测试环节。
 
-## 面向 AI 时代的开发建议
+---
 
-1. **不用手写 XML**：找依赖时，不要手写 `<dependency>` 标签。去 [MvnRepository](https://mvnrepository.com/) 搜索包名，直接把 XML 块复制过来；或者直接让 Claude Code 帮你添加指定包的依赖。
-2. **多模块协作 (Monorepo)**：Maven 的设计天生支持多模块（Multi-module 就像如今 Pnpm Workspace 时代的 Monorepo），理解了 `pom.xml` 的层级继承，你就理解了 Java 微服务切分的基石。
+## 配套的代码示例解读 (Code Example Walkthrough)
+
+观察 `pom.xml` 的 `<parent>` 标签：
+```xml
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.3.0</version>
+</parent>
+```
+这在 Maven 中叫 **“父子继承”**。它预定义了大量的插件配置和依赖版本号，让子项目只需引用 `artifactId` 而无需写 `version`，保证了大型项目中依赖版本的一致性。
+
+---
+
+## AI 辅助开发实战建议 (AI-assisted Development Suggestions)
+
+Maven 的 XML 极其繁琐，请务必指挥 Agent 处理：
+
+> **最佳实践 Prompt**:
+> "我想在项目中集成 MySQL 驱动和 MyBatis-Plus，请帮我修改 `pom.xml`。
+> 1. 请前往 Maven Central 查找最新稳定版。
+> 2. 确保依赖的作用域（Scope）设置正确。
+> 3. 如果有版本冲突，请告诉我如何使用 `<exclusions>` 排除它们。"
+
+---
+
+## 2-3 条扩展阅读 (Extended Readings)
+
+1. [Maven Official: Introduction to the Lifecycle](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html) - 理解构建核心逻辑。
+2. [MvnRepository](https://mvnrepository.com/) - Java 界的 npmjs.com，查依赖必备。

@@ -1,78 +1,84 @@
-# 32-MyBatis XML Mapper 深度解析：掌控 SQL 的终极力量
+# 32 - MyBatis XML Mapper 深度解析：掌控 SQL 的终极力量
 
-在 MyBatis-Plus 中，虽然 90% 的简单增删改查可以通过 `BaseMapper` 自动完成，但剩下的 10% 复杂场景（如复杂的联表、动态 SQL、报表查询）则必须依靠 **XML Mapper**。
+## 核心心智映射 (Core Mental Mapping)
 
-本文将以 [UserMapper.xml](../src/main/resources/mapper/UserMapper.xml) 为例，拆解其背后的逻辑。
+虽然 MyBatis-Plus 自动处理了 90% 的 CRUD，但剩下的 10% 复杂场景（如深度联表、动态 SQL、高性能报表）必须依靠 **XML Mapper**。
+
+| 领域 | Java 接口 (Mapper.java) | XML 实现 (Mapper.xml) | 心智映射 |
+| :--- | :--- | :--- | :--- |
+| **定位** | 业务的“契约” | SQL 的“实验室” | 接口与实现的解耦 |
+| **映射** | 方法名声明 | 通过 `id` 绑定实现 | 灵魂绑定的过程 |
+| **映射规则** | (默认推断) | **ResultMap (精密蓝图)** | 描述数据如何拼装成对象 |
+| **控制力** | 较低 (自动化) | **极高 (像素级 SQL 控制)** | 性能优化的最后领地 |
 
 ---
 
-## 1. 结构概览：谁是接口？谁是实现？
+## 概念解释 (Conceptual Explanation)
 
-在 Java 届，`Mapper` 采用了类似 **Controller/Service 接口与实现分离** 的思想：
+### 1. 灵魂绑定：NameSpace
+在 Java 中，`UserMapper` 接口只有方法头没有方法体。XML 通过 `namespace="com.javalabs.mapper.UserMapper"` 告诉框架：我就是这个接口的业务实现。
 
--   **Java 接口 (`UserMapper.java`)**: 仅仅是方法的声明。
--   **XML 文件 (`UserMapper.xml`)**: 接口的具体实现。
+### 2. ResultMap：对象组装蓝图
+这是 MyBatis 最强大的地方。它解决了表结构与 Java 对象结构不一致的问题：
+-   **字段转换**: 数据库 `user_name` 映射到 Java `username`。
+-   **对象嵌套**: 将平铺的 JOIN 结果集“折叠”成嵌套的 Java 对象树（如 User 包含 List<Task>）。
 
-两者通过 `namespace` 属性实现“灵魂绑定”：
+---
+
+## 关键语法和 API 介绍 (Key Syntax and API Introduction)
+
+### 核心标签拆解
+-   **`<mapper namespace="...">`**: 声明绑定的接口全路径。
+-   **`<resultMap>`**: 定义复杂的映射规则。
+    -   **`<id>`**: 标记主键（必填，用于对象去重）。
+    -   **`<result>`**: 映射普通列。
+    -   **`<collection>`**: 处理“一对多”关联。
+    -   **`<association>`**: 处理“一对一”关联。
+
+---
+
+## 典型用法 (Typical Usage)
+
+### 定义一个一对多 ResultMap
 ```xml
-<mapper namespace="com.javalabs.mapper.UserMapper">
+<resultMap id="UserWithTasksMap" type="User">
+    <id property="id" column="id"/>
+    <result property="username" column="user_name"/>
+    <!-- 处理多个任务 -->
+    <collection property="tasks" ofType="Task">
+        <id property="id" column="task_id"/>
+        <result property="title" column="task_title"/>
+    </collection>
+</resultMap>
 ```
 
 ---
 
-## 2. ResultMap：对象映射的“图纸”
+## 配套的代码示例解读 (Code Example Walkthrough)
 
-这是 XML 文件中最核心的部分。它解决了 **SQL 表结构** 与 **Java 类结构** 不一致的问题。
-
-### 为什么需要它？
--   **字段别名**：数据库是 `user_name`，Java 是 `username`。
--   **类型转换**：数据库是 `INT`，Java 是自定义 `Enum`。
--   **对象嵌套**：数据库是两条平铺的 Join 结果，Java 需要组装成 `User` 嵌套 `List<Task>`。
-
-### 标签拆解：
--   `<id>`: 映射 **主键**。MyBatis 会用主键来判断这两条数据是不是属于同一个对象。
--   `<result>`: 映射普通字段。
--   `<collection>`: 处理 **一对多**。
-    -   `property`: Java 实体类里的字段名。
-    -   `ofType`: 集合里装的是什么类。
+观察项目中的 `UserMapper.xml`:
+当调用 `selectUserWithTasks` 方法时：
+1.  MyBatis 执行一条 `LEFT JOIN` 语句。
+2.  由于结果集是“笛卡尔积”形式的平铺行，MyBatis 会根据 `id` 标签判断哪些行属于同一个 User。
+3.  它会自动创建 User 实例，并将多行记录中的 Task 数据塞进该 User 的 `tasks` 列表里。
+这种“自动折叠”能力让开发者无需手动通过 `for` 循环去合并数据。
 
 ---
 
-## 3. SQL 语句：精细化控制
+## AI 辅助开发实战建议 (AI-assisted Development Suggestions)
 
-```xml
-<select id="selectUserWithTasks" resultMap="UserWithTasksMap">
-    SELECT ... FROM users u LEFT JOIN tasks t ...
-</select>
-```
+手写 XML 极其容易出现命名空间或标签错误。
 
--   **id**: 必须对应接口中的方法名。
--   **resultMap**: 如果返回的是复杂对象（有嵌套），必须指向上面定义的 `<resultMap>` 的 `id`。
--   **resultType**: 如果返回的是基础类型（如 `String`）或简单对象，可以直接写类名。
+> **最佳实践 Prompt**:
+> "我需要为一个『财务系统』编写一个复杂的报表查询：统计每个部门下所有员工在过去 3 个月的平均奖金。
+> 1. 请帮我设计涉及 `departments` 和 `bonus_records` 的 `LEFT JOIN` SQL。
+> 2. 请生成对应的 MyBatis XML 片段，包含一个 `ResultMap` 处理部门与奖金记录的一对多映射。
+> 3. 请确保使用 `<where>` 和 `<if>` 标签来支持可选的时间范围过滤。"
 
 ---
 
-## 4. Node.js 开发者视角的“映射”
+## 2-3 条扩展阅读 (Extended Readings)
 
-如果你习惯了 **Prisma** 或 **TypeORM**，可以这样理解：
-
-| 维度 | Prisma | MyBatis XML |
-| :--- | :--- | :--- |
-| **定义关系** | `schema.prisma` 中的 `Relation` | XML 中的 `<collection>` / `<association>` |
-| **查询关联** | `prisma.user.findMany({ include: ... })` | 调用 XML 里的 `LEFT JOIN` SQL |
-| **字段映射** | `@map("column_name")` | XML 中的 `<result column="..." property="..." />` |
-
----
-
-## 5. 什么时候该用 XML？
-
-作为资深开发者，请遵循以下分界线：
-
-1.  **用 BaseMapper (MyBatis-Plus)**: 简单的单表 CRUD、简单的分页。
-2.  **用注解 (`@Select`)**: 简单的两表关联，SQL 不超过 5 行。
-3.  **用 XML**: 涉及 3 张表以上的 JOIN、复杂的动态判断 (如 `if/where/foreach` 标签)、或者需要极限优化 SQL 性能时。
-
----
-
-### 📚 练习建议
-您可以尝试在 `UserMapper.xml` 中增加一个 `<delete>` 标签，实现根据用户名模糊删除任务的功能，并思考这与在 Service 层循环删除有何性能差异。
+1. [MyBatis XML Mapper 官方文档](https://mybatis.org/mybatis-3/zh/sqlmap-xml.html) - 标签属性的最全解释。
+2. [Effective MyBatis: ResultMap 性能陷阱](https://www.baeldung.com/mybatis-resultmap) - 避免常见的映射错误。
+3. [Prisma Relationship Mapping Guide](https://www.prisma.io/docs/concepts/components/prisma-schema/relations) - 对标 Node.js 开发者的关系映射心智。

@@ -1,82 +1,97 @@
-# 00-Java 101：给 Node.js 开发者的“从 0 到 1”入门指南
+# 00 - Java 101：给 Node.js 开发者的入门指南
 
-欢迎来到 Java 的世界！作为资深的 Node.js/TypeScript 开发者，您已经具备了优秀的编程心智。Java 对您而言并不是外语，而是一门“语法更严谨、架构更厚重”的方言。
+## 核心心智映射 (Core Mental Mapping)
 
-## 1. 概念对标：环境底座
+如果你熟悉 Node.js，Java 对你来说并不是外语，而是一门“语法更严谨、架构更厚重”的方言。以下是你的心智模型转换地图：
 
-在 Node.js 中，你只需一个 `node` 命令。在 Java 中，我们需要区分以下三个概念：
-
-| 缩写 | 全称 | Node.js 对标 | 核心定位 |
+| 领域 | Node.js / TypeScript | Java 生态 | 心智映射 |
 | :--- | :--- | :--- | :--- |
-| **JDK** | Java Development Kit | **Node.js + NPM + SDK** | **开发必选**。包含了编译器 (`javac`) 和全套开发工具。 |
-| **JRE** | Java Runtime Environment | **Node Runtime** | **运行必选**。仅包含跑代码所需的环境。 (JDK 11+ 已将其整合) |
-| **JVM** | Java Virtual Machine | **V8 引擎** | **灵魂核心**。负责跨平台运行字节码，掌管内存管理与垃圾回收。 |
+| **运行时** | V8 Engine | JVM (Java Virtual Machine) | 都是字节码/二进制转换中心 |
+| **包管理** | NPM / PNPM | Maven / Gradle | 负责依赖下载与版本控制 |
+| **项目元数据** | `package.json` | `pom.xml` (Maven) | 核心配置与坐标声明 |
+| **编译/转译** | `tsc` (TS -> JS) | `javac` (Java -> Class) | 将源码转换为可执行格式 |
+| **函数组织** | 全局函数、箭头函数 | 必须写在 `class` 内 | Java 中“一切皆对象” |
 
 ---
 
-## 2. 编译链路：为什么不能直接跑路径？
+## 概念解释 (Conceptual Explanation)
 
-在 Node.js 中，运行代码通常是：`node app.js`。
-在 Java 中，代码需要经历一段 **“工业化加工”**：
+### JVM, JRE 与 JDK 的关系
+1.  **JVM (Java Virtual Machine)**: 灵魂核心。负责运行字节码，掌管内存管理与垃圾回收（对标 V8）。
+2.  **JRE (Java Runtime Environment)**: 运行环境。包含 JVM 和基础类库（对标 Node 运行时）。
+3.  **JDK (Java Development Kit)**: 开发工具包。包含 JRE + 编译器 + 调试工具（对标 Node + NPM + SDK）。
 
-1.  **源码 (.java)**：你写的代码。
-2.  **编译器 (javac)**：将源码“翻译”成 **字节码 (.class)**。
-    - *类比*：这就像 TypeScript 编译成 JavaScript。
-3.  **运行时 (JVM)**：解释并执行字节码。
-    - *优势*：**Write Once, Run Anywhere**。只要有 JVM，同样的字节码可以在 Linux、Windows、甚至智能冰箱上运行。
+### 字节码 (Bytecode)
+Java 源码 (`.java`) 会先编译成字节码 (`.class`)。这样做的好处是 **“一次编写，到处运行”**：只要机器上有 JVM，就能跑同一套字节码，无需关心底层 OS。
 
 ---
 
-## 3. 面向对象：第一条铁律
+## 关键语法和 API 介绍 (Key Syntax and API Introduction)
 
-在 JS 中，你可以直接写全局函数。**在 Java 中，一切皆为对象，代码必须写在 `class` 里。**
-
-### 入口函数 (Entry Point)
-每一个 Java 的可执行程序都必须有一个“点火开关”：
+### 入口点 (Entry Point)
+Java 程序的启动必须从一个固定的“点火开关”开始：
 
 ```java
-public class HelloJava {
-    // 固定的签名：公有的、静态的、无返回值的入口方法
+public class HelloWorld {
+    // 固定的方法签名：公有的、静态的、无返回值的 main 方法
     public static void main(String[] args) {
+        // 标准输出打印
         System.out.println("Hello Java!");
+    }
+}
+```
+
+### 类型系统
+- **基本类型 (Primitives)**: `int`, `long`, `boolean`, `double` 等。直接存值在栈中，性能极高。
+- **引用类型 (References)**: `String`, `List`, `User` 等。存的是对象的内存地址，存放在堆中。
+
+---
+
+## 典型用法 (Typical Usage)
+
+### 基础类定义
+在 Java 中，一个文件通常对应一个 `public class`，且文件名必须与类名一致。
+
+```java
+public class UserProfile {
+    // 私有字段，对标 TS 的 private
+    private String username;
+    
+    // 构造函数
+    public UserProfile(String username) {
+        this.username = username;
+    }
+
+    // 实例方法
+    public void printWelcome() {
+        System.out.println("Welcome, " + username);
     }
 }
 ```
 
 ---
 
-## 4. 类型系统：不仅仅是标记
+## 配套的代码示例解读 (Code Example Walkthrough)
 
-- **JS/TS**：类型更多是为了开发时的静态检查。
-- **Java**：类型是 **底层内存分配** 的依据。
-    - **基本类型 (Primitive)**：如 `int`, `long`, `boolean`。响应极快，存在栈里。
-    - **引用类型 (Reference)**：如 `String`, `List`, `User`。存在堆里，通过指针引用。
-
----
-
-## 5. 项目骨架：Maven 101
-
-在前端，你有 `package.json`。在 Java 中，我们常用的构建工具是 **Maven**：
-
-- **`pom.xml`**：对标 `package.json`。定义了项目坐标、插件版本和依赖仓库。
-- **目录规范**：
-    - `src/main/java`：放业务代码（对标 `src/`）。
-    - `src/test/java`：放单元测试（对标 `tests/`）。
+观察 `public static void main(String[] args)`：
+1.  **`public`**: 让 JVM 可以在类外部调用这个方法。
+2.  **`static`**: 意味着 JVM 不需要实例化这个类就能直接调用该方法（类似于 Node 中的静态导出）。
+3.  **`void`**: 声明没有返回值。
+4.  **`String[] args`**: 命令行参数，对标 Node 中的 `process.argv`。
 
 ---
 
-## 6. 如何高效学习此指南？
+## AI 辅助开发实战建议 (AI-assisted Development Suggestions)
 
-本系列文档已按从易到难的顺序编号：
-1.  **101 入门**：即本指南 [00-java-basic.md](./00-java-basic.md)。
-2.  **工具链与规范**：参见 [01-maven-vs-npm-guide.md](./01-maven-vs-npm-guide.md) 和 [09-java-project-structure.md](./09-java-project-structure.md)。
-3.  **语法进阶**：参见 [03-stream-api-mapping.md](./03-stream-api-mapping.md) 与 [14-java-lambda-essentials.md](./14-java-lambda-essentials.md)。
-4.  **并发内功**：也是本项目的核心特色，从 [13-concurrency-models.md](./13-concurrency-models.md) 开启。
+作为前端老鸟，不要强记所有 Java 语法，利用 Agent 的映射能力：
+
+> **最佳实践 Prompt**:
+> "我正尝试在 Java 中实现一个功能。在 TypeScript 中我会这样写：`[贴入 TS 代码]`。
+> 请帮我基于 Java 21 的语法惯例（Idioms）重写它，并说明 Java 中对应的面向对象组织方式。"
 
 ---
-> [!TIP]
-> **指挥 AI 的第一步：** 不要试图强记所有语法，只需理解 Java 的 **“显式声明”** 和 **“面向对象”** 哲学。遇到问题，请对 Agent 提问：“这个逻辑在 Java 的面向对象体系下该如何组织？”。
 
-**参考资料**：
-- [Oracle Java Documentation](https://docs.oracle.com/en/java/)
-- [Java 17 官方新特性解读](https://www.oracle.com/java/technologies/javase/17-relnotes.html)
+## 2-3 条扩展阅读 (Extended Readings)
+
+1. [Oracle: Learn Java Tutorials](https://dev.java/learn/) - 官方入门教程，最权威的语料库。
+2. [Baeldung: Java Basics](https://www.baeldung.com/category/java/tag/java-core/) - 实战派首选，含有大量对比示例。

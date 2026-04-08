@@ -1,116 +1,84 @@
-# 22-SpringBoot RESTful API 设计与规范指引
+# 22 - Spring Boot RESTful API 设计与规范指引
 
-本指南总结了 Java 后端开发中关于 REST 接口设计的核心工业规范，结合本项目中的 `EmployeeController` 实践。
+## 核心心智映射 (Core Mental Mapping)
 
----
+REST 的本质是**操作资源**。在 Spring Boot 中，我们通过特定的注解将 HTTP 方法精确映射到业务资源上。
 
-## 1. 核心设计原则：资源导向 (ROA)
-
-REST 的本质是**操作资源**。在 Spring Boot 中，我们通过特定的注解来实现这种映射。
-
-### 📍 URL 命名规范
-- **使用名词复数**：`/api/employees` (✅) 而非 `/api/getEmployees` (❌)。
-- **全小写/连字符**：推荐使用 `/api/it-employees` 而非蛇形命名。
-
----
-
-## 2. HTTP 谓词的语义映射
-
-我们通过 `EmployeeController` 验证了以下标准映射：
-
-| 方法 | 语义 | 幂等性 | 本项目实现 |
+| 场景 | Node.js (Express / Nest) | Java (Spring Boot) | 心智映射 |
 | :--- | :--- | :--- | :--- |
-| **GET** | 获取资源 | 是 | `getAllEmployees()`, `getEmployeeById()` |
-| **POST** | 创建新资源 | 否 | `createEmployee()` |
-| **PUT** | 更新/替换资源 | 是 | `updateEmployee()` |
-| **DELETE** | 删除资源 | 是 | `deleteEmployee()` |
+| **获取资源** | `router.get()` / `@Get()` | **`@GetMapping`** | 幂等读取 |
+| **创建资源** | `router.post()` / `@Post()` | **`@PostMapping`** | 非幂等写入 (201 Created) |
+| **更新资源** | `router.put()` / `@Put()` | **`@PutMapping`** | 整体覆盖 (幂等) |
+| **删除资源** | `router.delete()` / `@Delete()` | **`@DeleteMapping`** | 物理/逻辑删除 (204 No Content) |
+| **请求参数** | `req.params` / `@Param()` | **`@PathVariable`** | 路径中的资源 ID |
+| **查询参数** | `req.query` / `@Query()` | **`@RequestParam`** | 过滤、分页参数 |
 
 ---
 
-## 3. HTTP 状态码的设置方式：三种姿势
+## 概念解释 (Conceptual Explanation)
 
-在 Spring Boot 中，设置状态码主要有三种方式，按灵活度排序如下：
+### 1. 资源导向 (ROA)
+-   **URL 命名**: 应该是名词复数。例如 `/api/users` 而不是 `/api/getUser`。
+-   **无状态性**: 每个请求都应该包含处理该请求所需的全部信息，服务器不保存会话上下文（对标 JWT 模式）。
 
-### 3.1 姿势一：利用 `ResponseEntity` (推荐)
-这是最灵活、最显式的方式，允许在返回数据的同时动态指定状态码和 Header。
+### 2. 幂等性 (Idempotency)
+-   无论执行多少次，结果都相同的方法（如 GET, PUT, DELETE）。这对分布式系统中的重试机制至关重要。
 
+---
+
+## 关键语法和 API 介绍 (Key Syntax and API Introduction)
+
+### ResponseEntity：状态码的指挥棒
+在 Java 中，如果你想返回非 200 的状态码（如 201 或 404），必须使用 `ResponseEntity`。
 ```java
-// 示例：创建成功返回 201
 @PostMapping
-public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
-    Employee saved = employeeService.createEmployee(employee);
-    return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-}
-
-// 示例：查询成功返回 200 (默认)
-return ResponseEntity.ok(data);
-```
-
-### 3.2 姿势二：使用 `@ResponseStatus` 注解
-适用于逻辑简单、意图固定的场景。直接打在方法上，Spring 会自动包装。
-
-```java
-@DeleteMapping("/{id}")
-@ResponseStatus(HttpStatus.NO_CONTENT) // 👈 强制返回 204
-public void deleteEmployee(@PathVariable String id) {
-    employeeService.deleteEmployee(id);
+public ResponseEntity<User> createUser(@RequestBody User user) {
+    User savedUser = userService.save(user);
+    // 返回 201 Created 状态码
+    return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
 }
 ```
-
-### 3.3 姿势三：异常触发
-正如第 4 章所示，当抛出特定异常时，由异常处理器统一重定向到对应的状态码。
 
 ---
 
-## 4. 全局异常处理实战：从 AOP 到 JSON
+## 典型用法 (Typical Usage)
 
-在 Node.js 中，我们习惯通过 `app.use((err, req, res, next) => ...)` 来捕捉错误。Spring Boot 则使用了 **`@RestControllerAdvice`**。
-
-### 📍 设置指南：手把手教你配置
-
-#### 第一步：定义自定义异常
-创建一个继承自 `RuntimeException` 的类，用于业务逻辑报错。
-```java
-public class ResourceNotFoundException extends RuntimeException {
-    public ResourceNotFoundException(String message) { super(message); }
-}
-```
-
-#### 第二步：编写全局处理器
-创建一个类并加上 `@RestControllerAdvice` 注解。
-
-```java
-@RestControllerAdvice
-public class GlobalExceptionHandler {
-
-    // 针对特定异常返回 404
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Object> handleNotFound(ResourceNotFoundException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", 404);
-        body.put("error", "Not Found");
-        body.put("message", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
-    }
-}
-```
-
-### ⚡ 运行指引：如何演示异常拦截？
-1. **启动应用**。
-2. **故意制造错误**：请求一个不存在的资源，如 `curl -i http://localhost:8080/api/employees/abc`。
-3. **观察结果**：
-   - 虽然 Service 层抛出的是 Java 的 `throw new Exception()`。
-   - 但你收到的却是规范的 **JSON** 响应，状态码精准为 **404**。
-   - 这证明了异常在到达用户前，被“大管家”拦截并进行了“精装修”。
+### 常用状态码准则
+-   **200 OK**: 常规查询成功。
+-   **201 Created**: POST 创建资源成功。
+-   **204 No Content**: DELETE 成功，且无需返回内容。
+-   **400 Bad Request**: 参数非法（如校验失败）。
+-   **404 Not Found**: 资源不存在。
 
 ---
 
-> [!IMPORTANT]
-> **最佳实践总结**：
-> 始终优先返回 `ResponseEntity<T>` 或通过 `ExceptionHandler` 统一转换逻辑。这能确保你的 API 无论在成功还是失败时，返回的结构都是可预测的，这对前端开发者极其友好。
+## 配套的代码示例解读 (Code Example Walkthrough)
 
-**关联代码**：
-- [EmployeeController.java](../src/main/java/com/javalabs/controller/EmployeeController.java)
-- [GlobalExceptionHandler.java](../src/main/java/com/javalabs/exception/GlobalExceptionHandler.java)
+观察 `EmployeeController.java` 中的设计：
+```java
+@GetMapping("/{id}")
+public ResponseEntity<Employee> getEmployeeById(@PathVariable String id) {
+    Employee employee = employeeService.getById(id);
+    return ResponseEntity.ok(employee); // 默认为 200
+}
+```
+通过 `@PathVariable`，我们将 URL 中的 ID 直接映射到了方法参数上。配合 `ResponseEntity` 的链式调用，代码兼具了可读性与 HTTP 规范性。
+
+---
+
+## AI 辅助开发实战建议 (AI-assisted Development Suggestions)
+
+设计 RESTful 接口时，层级关系容易混乱。
+
+> **最佳实践 Prompt**:
+> "我需要为一个『博客系统』设计 API。一个文章（Post）下有多个评论（Comment）。
+> 1. 请帮我设计符合 REST 规范的 URL 路径，以获取特定文章下的所有评论。
+> 2. 请生成对应的 Spring Boot Controller 骨架，并使用 `ResponseEntity` 返回规范的状态码。
+> 3. 请说明在更新评论时，应该选择 `PUT` 还是 `PATCH`，并提供代码示例。"
+
+---
+
+## 2-3 条扩展阅读 (Extended Readings)
+
+1. [Microsoft REST API Guidelines](https://github.com/microsoft/api-guidelines) - 工业级参考标准。
+2. [Baeldung: ResponseEntity in Spring](https://www.baeldung.com/spring-response-entity) - 详细讲解状态码与 Header 的控制技巧。

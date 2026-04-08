@@ -1,85 +1,92 @@
-# 03-stream-api-mapping
+# 03 - Stream API：像处理 JS 数组一样处理 Java 集合
 
-作为深谙 Node.js 开发的前端/全栈程序员，处理数组数据简直是家常便饭，`filter`, `map`, `reduce` 这三板斧几乎构成了我们数据转换的大半江山。而在 Java 世界，完全对标这一特性的便是 **Stream API**（流式处理，自 Java 8 引入并在后续版本不断增强完善）。
+## 核心心智映射 (Core Mental Mapping)
 
-## 核心心智映射
+作为深谙 Node.js 开发的全栈程序员，`filter`, `map`, `reduce` 是处理数据的“三板斧”。Java 的 **Stream API** 完全对标这一心智模型，但更为严谨且高效。
 
 | Node.js `Array.prototype` | Java `java.util.stream.Stream` | 核心差异 |
-| --- | --- | --- |
-| `Array.filter(fn)` | `stream().filter(Predicate)` | Java 强类型，需要定义好具体的过滤条件类型 |
-| `Array.map(fn)` | `stream().map(Function)` | TS 中隐式推断类型，Java 中有特定的 `mapToInt`, `mapToDouble` 免去装箱操作 |
-| `Array.reduce(fn, init)` | `stream().reduce(init, BinaryOperator)` | Java 中最常用的是配合 `Collectors` 做规约，而不是直接写底层的 reduce 累加逻辑 |
+| :--- | :--- | :--- |
+| `Array.filter(fn)` | `stream().filter(Predicate)` | Java 需要显式 Lambda 或方法引用 |
+| `Array.map(fn)` | `stream().map(Function)` | Java 提供 `mapToInt` 等原始类型流优化性能 |
+| `Array.reduce(fn, init)` | `stream().reduce(init, BinaryOp)` | Java 常用 `Collectors` 快速规约而非手写累加 |
+| **执行时机** | **立即执行** (创建新数组) | **惰性执行** (仅在调用终结操作时才运行) |
 
-> **关键认知差异**：
-> 在 JS 中，每次调用 `.map()` 或 `.filter()` 都会在内存中**立刻生成一个新的完整数组**。  
-> 在 Java 的 Stream 中，所有的中间操作（如 `filter`, `map`）都是**惰性的 (Lazy)**。只有当你最终调用了**终端操作**（Terminal Operation，例如 `.collect(Collectors.toList())` 或 `.reduce()`）时，整个流才会像流水线一样一次性开始处理所有数据。这也是 Java 在处理超级大数据集合时的性能优势所在。
+---
 
-## 场景实战对比
+## 概念解释 (Conceptual Explanation)
 
-假设我们有一个员工数据集合，需要筛选出所有**在职员工**，获取他们的**薪水**，并计算出**年薪总支出**。
+### 1. 惰性求值 (Lazy Evaluation)
+在 JS 中，每个 `.map()` 都会生成一个新数组。在 Java 中，所有的中间操作（如 `filter`, `map`）都只是在“声明”流水线。只有当你调用了 **终端操作**（如 `toList()`, `sum()`, `count()`）时，整个流才会一次性地处理所有数据。这在处理大数据集时具有极高的性能优势。
 
-### Node.js / TypeScript 的经典写法
+### 2. 中间操作 vs 终端操作
+- **中间操作**: 返回值仍然是一个 `Stream`，可以链式调用（如 `filter`, `distinct`, `sorted`）。
+- **终端操作**: 返回一个非流的结果或副作用（如 `collect`, `forEach`, `reduce`）。
 
-```typescript
-type Employee = { name: string; isActive: boolean; salary: number };
+---
 
-const employees: Employee[] = [
-  { name: 'Alice', isActive: true, salary: 5000 },
-  { name: 'Bob', isActive: false, salary: 6000 },
-  { name: 'Charlie', isActive: true, salary: 7000 }
-];
+## 关键语法和 API 介绍 (Key Syntax and API Introduction)
 
-const totalSalary = employees
-  .filter(emp => emp.isActive)
-  .map(emp => emp.salary)
-  .reduce((acc, current) => acc + current, 0);
-
-console.log(totalSalary); // 输出: 12000
+### 获取流
+```java
+List<String> list = List.of("a", "b", "c");
+list.stream(); // 从集合获取流
 ```
 
-### Java 的 Stream API 等价写法
+### 常用中间操作
+- `filter(p -> p.startsWith("a"))`: 过滤。
+- `map(String::toUpperCase)`: 转换（此处使用方法引用）。
+- `distinct()`: 去重。
 
-在 Java 中，我们需要借助 `Stream` 并利用 Java 的强类型与方法引用（Method Reference，类似 `Class::method` 的语法糖）。
+### 常用终端操作
+- `toList()`: (Java 16+) 直接收集到列表。
+- `collect(Collectors.toMap(...))`: 收集到 Map。
+- `findFirst()`: 获取第一个元素，返回 `Optional`。
+
+---
+
+## 典型用法 (Typical Usage)
+
+### 场景：筛选活跃用户并提取用户名
 
 ```java
-import java.util.List;
+List<String> activeUserNames = users.stream()
+    .filter(User::isActive)
+    .map(User::getName)
+    .toList();
+```
 
-// 1. 利用 Java 的 Record 优雅定义数据结构 (完全等价于上面的 TS Type)
+---
+
+## 配套的代码示例解读 (Code Example Walkthrough)
+
+观察以下对比示例：使用 Java 的 **Record**（类比 TS 的 Type/Interface）配合 Stream。
+
+```java
 record Employee(String name, boolean isActive, int salary) {}
 
-public class StreamDemo {
-    public static void main(String[] args) {
-        // 2. 初始化集合
-        var employees = List.of(
-            new Employee("Alice", true, 5000),
-            new Employee("Bob", false, 6000),
-            new Employee("Charlie", true, 7000)
-        );
-
-        // 3. 流式处理！
-        int totalSalary = employees.stream()
-            .filter(Employee::isActive)           // 等同于 emp -> emp.isActive()
-            .mapToInt(Employee::salary)           // 等同于 emp -> emp.salary()，且直接转换为无装箱的原始 int 流
-            .sum();                               // Java 贴心地提供了默认的 sum() 替代了手写 reduce 累加
-            
-        System.out.println(totalSalary); // 输出: 12000
-    }
-}
+int totalSalary = employees.stream()
+    .filter(Employee::isActive)           // 1. 过滤在职员工
+    .mapToInt(Employee::salary)           // 2. 映射为数值流 (避免装箱损耗)
+    .sum();                               // 3. 直接求和 (终端操作)
 ```
 
-## 进阶：如何将其转为集合？
+1.  **`Employee::isActive`**: 这是方法引用，等同于 `e -> e.isActive()`，更简洁。
+2.  **`mapToInt`**: 如果处理的是数字，Java 强攻性能，提供了原始类型流，避免了 `Integer` 对象的创建。
 
-在处理完流之后，我们通常不止是为了计算一个值，而是需要把转换后的对象重新塞在一个列表里（类比 JS 中 `map` 返回的新数组）。
-这时我们需要用到 Java 强大的 `Collectors` 工具类。
+---
 
-```java
-// 提取所有活跃员工的姓名列表
-List<String> activeNames = employees.stream()
-    .filter(Employee::isActive)
-    .map(Employee::name)
-    .toList(); // Java 16+ 提供的快捷收集方法，替代旧版的 .collect(Collectors.toList())
+## AI 辅助开发实战建议 (AI-assisted Development Suggestions)
 
-// 输出: [Alice, Charlie]
-```
+Java 的 Stream 语法在处理嵌套或级联转换时非常强大，但也容易写得冗长。
 
-记住，遇到任何复杂的数据集合转换需求，直接扔给 AI Agent ，“把它翻译成 Java 21 Stream API”，你就能用 Node.js 的思维，写出极其优雅并自带性能 Buff 的现代 Java 业务代码！
+> **最佳实践 Prompt**:
+> "我有一组 `Order` 对象，每个订单包含多个 `OrderItem`。
+> 请帮我用 Java 21 Stream API 实现：筛选出订单总额大于 100 的订单，并提取其中所有商品的唯一 ID 列表。
+> 请尽量使用方法引用（Method Reference），并说明如何使用 `flatMap` 展平集合。"
+
+---
+
+## 2-3 条扩展阅读 (Extended Readings)
+
+1. [Baeldung: The Java 8 Stream API Tutorial](https://www.baeldung.com/java-8-streams) - Stream 的百科全书。
+2. [Modern Java Recipes](https://www.oreilly.com/library/view/modern-java-recipes/9781491973165/) - 强烈推荐，书中关于流的组合操作非常有启发性。

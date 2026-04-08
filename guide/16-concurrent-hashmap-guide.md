@@ -1,135 +1,74 @@
-# 16-线程安全集合：ConcurrentHashMap 实战指南
+# 16 - 线程安全集合：ConcurrentHashMap 实战指南
 
-作为 Node.js 开发者，您可能习惯于直接在 `Map` 中存储缓存。但在 Java 的多核多线程环境下，普通的 `HashMap` 如果被多个线程同时操作，会发生非常隐蔽的错误。
+## 核心心智映射 (Core Mental Mapping)
 
-## 1. 三种容器的演进史
+如果你习惯了 Node.js 的单线程环境，处理 `Map` 就像喝水一样自然。但在 Java 的多核并发环境下，普通的 `HashMap` 如果被多个线程同时操作，会发生极其隐蔽且致命的错误。
 
-| 容器名 | 安全性 | 性能 | 机制 | 状态 |
+| 特性 | HashMap | Hashtable | ConcurrentHashMap | 心智映射 |
 | :--- | :--- | :--- | :--- | :--- |
-| **`HashMap`** | ❌ 不安全 | 🚀 极快 | 无任何同步机制 | 现代开发的首选（单线程下） |
-| **`Hashtable`** | ✅ 安全 | 🐢 极慢 | 在每个方法上加 `synchronized` 大锁 | **已废弃**，请勿使用 |
-| **`ConcurrentHashMap`** | ✅ 安全 | ⚡️ 很快 | 分段锁 (JDK 7) / CAS + 节点锁 (JDK 8) | **现代并发开发的正道** |
+| **线程安全** | ❌ 不安全 | ✅ 安全 | ✅ 安全 | 现代并发开发的正道 |
+| **锁粒度** | 无锁 | **全表大锁** | **分段锁/节点锁** | 只锁住正在操作的那个“坑位” |
+| **执行效率** | 🚀 极快 | 🐢 极慢 | ⚡️ 很快 | 高并发下的吞吐量之王 |
+| **状态** | 开发首选 (单线程) | **已废弃** | **并发场景必备** | 优先选择现代化的同步方案 |
 
-## 2. 为什么不用 HashMap？ (复现脏写)
+---
 
-在多线程环境下，`HashMap.put()` 涉及到对链表或红黑树的操作。如果两个线程同时扩容或在同一个桶 (Bucket) 插入数据，会导致：
-- **数据丢失**：一个线程的写入覆盖了另一个。
-- **Size 不准**：计数器非原子累加。
-- **甚至死机**：在旧版 JDK 中，并发扩容甚至可能导致 CPU 100% (死循环)。
+## 概念解释 (Conceptual Explanation)
 
-## 3. ConcurrentHashMap 的核心绝招
+### 1. 为什么 HashMap 在并发下会“翻车”？
+-   **数据丢失**: 线程 A 和 B 同时在同一个位置插入，一个会覆盖另一个。
+-   **Size 不准**: 计数器不是原子的。
+-   **死循环**: 在旧版 JDK 中，并发扩容可能导致链表形成环。
 
-### A. 锁粒度极细
-它不再锁住整个 Map，而是只锁定当前正在操作的那个 **桶 (Node)**。这就像一个大型停车场，只有当你把车停入某一个具体车位时，该车位才会被占用，而其他车位可以并行停车。
+### 2. 什么是原子复合操作？
+在并发环境下，“先判断再执行”是万恶之源。
+-   **❌ 方案**: `if (!map.containsKey(key)) { map.put(key, val); }` —— 在 if 执行完的瞬间，别的线程可能已经存进去了。
+-   **✅ 方案**: `map.putIfAbsent(key, val)` —— 这个操作在 JVM 底层是原子的，要么成功，要么失败，没有中间态。
 
-### B. 常用的原子操作方法 (必会)
+---
 
-如果你先 `get` 判断是否存在，再 `put` 写入，这在并发下依然是不安全的。你应该使用 `ConcurrentHashMap` 提供的原子方法：
+## 关键语法和 API 介绍 (Key Syntax and API Introduction)
 
-1.  **`putIfAbsent(key, value)`**：如果不存在则放入。
-2.  **`computeIfAbsent(key, mappingFunction)`**：如果不存在，则运行函数计算值并放入。
-    - **类比**：非常适用于实现 **Cache Aside** 模式（即：读缓存，未命中则查库并更新缓存）。
+### 核心原子方法
+-   **`putIfAbsent(K, V)`**: 只有 key 不存在时才放入。
+-   **`computeIfAbsent(K, Function)`**: **(最推荐)**。如果不存在，则运行函数计算值并放入。常用于初始化缓存列表。
+-   **`remove(K, V)`**: 只有当 key 对应的值确实是 V 时才删除。
+-   **`replace(K, oldV, newV)`**: 只有当值是 oldV 时才替换为 newV（CAS 思想）。
 
-## 4. 给 Node.js 开发者的建议
+---
 
-### ⚠️ 不要在 Loop 中改 Map
+## 典型用法 (Typical Usage)
 
-即使是 `ConcurrentHashMap`，在遍历时修改虽然不会抛出 `ConcurrentModificationException`（`HashMap` 会抛），但**逻辑可能不符合预期**，产生难以排查的 Bug。
-
-#### 问题场景：遍历时删除过期缓存
-
+### 场景：实现一个简单的本地缓存
 ```java
-// ❌ 危险写法：遍历时直接修改（逻辑可能不完整/不一致）
-ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
-map.put("a", 1);
-map.put("b", 2);
-map.put("c", 3);
-
-for (String key : map.keySet()) {
-    if (map.get(key) < 2) {
-        map.remove(key); // 虽然不会报错，但在并发下可能漏删或逻辑混乱
-    }
+public User getUser(String id) {
+    // 自动实现：查缓存 -> 缺失则查库 -> 存回缓存 -> 返回
+    return cache.computeIfAbsent(id, key -> db.findUserById(key));
 }
 ```
 
-> **类比 Node.js**：这就像在 `for...of` 遍历数组时，同时调用 `array.splice()` 删除元素——你可能会跳过某些元素，或者处理到已经被删除的位置。
+---
+
+## 配套的代码示例解读 (Code Example Walkthrough)
+
+观察 `ConcurrentHashMap` 的“细粒度锁”：
+它不再锁住整个 Map，而是只锁定当前正在操作的那个 **桶 (Node)**。这就像一个大型停车场，只有当你把车停入某一个具体车位时，该车位才会被占用，而其他车位可以并行停车。这种设计允许成百上千个线程同时并发读写，而性能几乎不受损。
 
 ---
 
-#### ✅ 最佳实践 1：使用 `entrySet().removeIf()` —— 原子批量删除
+## AI 辅助开发实战建议 (AI-assisted Development Suggestions)
 
-```java
-// ✅ 推荐：removeIf 内部使用迭代器安全删除
-map.entrySet().removeIf(entry -> entry.getValue() < 2);
-```
+手动处理并发计数或缓存很容易写出 Race Condition。
 
-- `removeIf` 底层使用迭代器的 `remove()`，是专门为遍历删除设计的安全方式。
-- 逻辑简洁，类比 JS 的 `filter`（但这里是原地修改）。
-
----
-
-#### ✅ 最佳实践 2：先收集、再操作 —— 两阶段处理
-
-```java
-// ✅ 推荐：先收集需要删除的 key，再统一删除
-List<String> keysToRemove = map.entrySet().stream()
-    .filter(entry -> entry.getValue() < 2)
-    .map(Map.Entry::getKey)
-    .collect(Collectors.toList());
-
-keysToRemove.forEach(map::remove);
-```
-
-- **读写分离**：遍历阶段只读，修改阶段只写，逻辑清晰，不会自我干扰。
-- 适合逻辑复杂、需要跨多个条件判断的场景。
+> **最佳实践 Prompt**:
+> "我需要统计 100 个线程同时处理任务时，每个关键词出现的频率。
+> 1. 请帮我使用 `ConcurrentHashMap` 配合 `compute` 或 `merge` 方法实现原子的计数累加。
+> 2. 请指出为什么传统的 `get + put` 写法在这段程序里会导致计数丢失。
+> 3. 请说明如何在遍历该 Map 时安全地删除频率低于 5 的项。"
 
 ---
 
-#### ✅ 最佳实践 3：使用 `replaceAll()` 批量更新值
+## 2-3 条扩展阅读 (Extended Readings)
 
-```java
-// ❌ 危险写法：遍历时修改 value
-for (String key : map.keySet()) {
-    map.put(key, map.get(key) * 2); // 并发下可能覆盖其他线程的写入
-}
-
-// ✅ 推荐：replaceAll 是原子性地对每个 entry 执行函数
-map.replaceAll((key, value) -> value * 2);
-```
-
-- `replaceAll` 内部对每个节点加锁，保证每次更新的原子性。
-
----
-
-#### ✅ 最佳实践 4：使用 `forEach()` 只读遍历，禁止在其中写入
-
-```java
-// ✅ 遍历只用于读取/统计，不在内部修改 map
-map.forEach((key, value) -> {
-    System.out.println(key + " -> " + value);
-    // ⚠️ 不要在这里调用 map.put() / map.remove()
-});
-```
-
----
-
-#### 总结对比表
-
-| 场景 | ❌ 危险写法 | ✅ 推荐写法 |
-| :--- | :--- | :--- |
-| 遍历时删除元素 | `for + map.remove()` | `removeIf()` 或两阶段删除 |
-| 遍历时更新 value | `for + map.put()` | `replaceAll()` 或 `compute()` |
-| 遍历时只读统计 | 直接 `for` | `forEach()` 只读 |
-| 条件写入（不存在才插入）| `get` + `put` | `putIfAbsent()` / `computeIfAbsent()` |
-
----
-
-- **优先用 `java.util.concurrent` 包**：除了 Map，还有 `CopyOnWriteArrayList` 等专门为并发设计的集合。
-
----
-> [!TIP]
-> **本周核心：** 接下来我们将通过代码演示 50 个线程同时向 `HashMap` 写入数据时发生的崩溃现场。
-
-**参考资料**：
-- [Internal Working of ConcurrentHashMap](https://www.baeldung.com/java-concurrent-hashmap)
-- [How JDK 8 ConcurrentHashMap differs from its predecessors](http://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/java/util/concurrent/ConcurrentHashMap.java)
+1. [Internal Working of ConcurrentHashMap](https://www.baeldung.com/java-concurrent-hashmap) - 深入底层数据结构。
+2. [Java Concurrency in Practice - Chapter 5](https://jcip.net/) - 详细讲解了并发容器的设计初衷。

@@ -1,84 +1,106 @@
-# 23-SpringBoot 中间件深度解析：Filter vs Interceptor
+# 23 - Spring Boot 中间件深度解析：Filter vs Interceptor
 
-本指南通过“请求日志全链路追踪”实战，带您理清 Spring Boot 中两种核心的拦截机制。
+## 核心心智映射 (Core Mental Mapping)
 
----
+在 Node.js (Express) 中，中间件（Middleware）通常是线性的。但在 Spring Boot 中，请求会经历一个“洋葱模型”。你需要明确“谁在外面守大门，谁在里面维持秩序”。
 
-## 1. 核心模型对比：谁在里面，谁在外面？
-
-在 Node.js 中，中间件（Middleware）通常是线性排列的。但在 Spring Boot 中，请求会经历一个“洋葱模型”：
-
-| 特性 | **Filter (过滤器)** | **Interceptor (拦截器)** |
-| :--- | :--- | :--- |
-| **所属层级** | Servlet 容器 (如 Tomcat) | Spring MVC 框架内部 |
-| **颗粒度** | 粗。只能拿到请求和响应对象 | 细。能拿到处理请求的具体的 Controller 方法 |
-| **典型场景** | 全站日志、CORS、Gzip、权限初筛 | 业务权限校验、性能分析、数据预处理 |
-| **Node.js 对标** | Express Middleware | NestJS Interceptor / Guard |
+| 特性 | Filter (过滤器) | Interceptor (拦截器) | 心智映射 |
+| :--- | :--- | :--- | :--- |
+| **层级** | Servlet 容器级 (如 Tomcat) | Spring MVC 框架级 | 大门口 vs 走廊里 |
+| **颗粒度** | 粗。只能拿到请求/响应流 | 细。能拿到对应的 Controller 方法 | 拿快递 vs 进屋查户口 |
+| **Node.js 对标** | Express Middleware | NestJS Interceptor / Guard | 不同框架层的抽象 |
+| **典型场景** | Gzip、全站日志、CORS | 业务鉴权、审计日志、性能统计 | 全局 vs 业务 |
 
 ---
 
-## 2. 代码实现解剖
+## 概念解释 (Conceptual Explanation)
 
-### 2.1 Filter：系统哨兵
-查看 [`RequestLogFilter.java`](../src/main/java/com/javalabs/filter/RequestLogFilter.java)。它使用了标准的 Servlet 规范，通过 `chain.doFilter` 将请求向后传递。
+### 1. 执行顺序：洋葱模型
+当一个请求进来：
+1.  **Filter (Entrance)**: 最先触发。
+2.  **DispatcherServlet**: 进入 Spring 的核心处理器。
+3.  **Interceptor (preHandle)**: 在执行业务代码前触发。
+4.  **Controller**: 你的业务逻辑。
+5.  **Interceptor (postHandle)**: 业务逻辑结束后触发。
+6.  **Filter (Exit)**: 最后离开。
 
-### 2.2 Interceptor：业务分析师
-查看 [`PerformanceInterceptor.java`](../src/main/java/com/javalabs/interceptor/PerformanceInterceptor.java)。它实现了 Spring 的 `HandlerInterceptor`，可以精确获取到 `HandlerMethod`（即具体的 Controller 方法名）。
+### 2. 核心区别
+Filter 是外部 Servlet 规范定义的，它甚至不知道 Spring 的存在。而 Interceptor 是 Spring 定义的，它可以直接访问 Spring 容器中的任何 Bean 和方法元数据。
 
 ---
 
-## 3. 运行指南：验证“套娃”顺序
+## 关键语法和 API 介绍 (Key Syntax and API Introduction)
 
-### 🚀 演示步骤
-1. **启动应用**：运行 `JavaLabsApplication`。
-2. **发起请求**：访问 `curl http://localhost:8080/api/employees`。
-3. **观察控制台日志**，您将看到完美的执行闭环：
+### 实现一个 Filter
+```java
+@Component
+public class MyFilter implements Filter {
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {
+        // 请求进入逻辑
+        chain.doFilter(req, res); // 必须调用，否则请求就此中断
+        // 请求离开逻辑
+    }
+}
+```
 
+### 实现一个 Interceptor
+```java
+@Component
+public class MyInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        // 返回 true 放行，返回 false 拦截
+        return true; 
+    }
+}
+```
+> **注意**: 拦截器还需要在 `WebMvcConfigurer` 中显式注册。
+
+---
+
+## 典型用法 (Typical Usage)
+
+### 系统守卫 (Filter)
+最适合处理那些与业务逻辑完全解耦的操作：
+-   **Logging**: 记录每个请求的耗时。
+-   **Security**: 提取 Header 中的 Token（如 SecurityContextFilter）。
+-   **CORS**: 统一处理跨域请求。
+
+### 业务管理 (Interceptor)
+最适合处理与 Controller 紧密相关的逻辑：
+-   **Permission**: 检查当前用户是否有权访问该 Controller 方法。
+-   **Params**: 预处理或格式化特殊的请求参数。
+
+---
+
+## 配套的代码示例解读 (Code Example Walkthrough)
+
+观察以下执行日志顺序：
 ```text
 >>> [Filter 开始] HTTP GET /api/employees
     >>> [Interceptor 预处理] 执行者: EmployeeController#getAllEmployees
     <<< [Interceptor 后处理] 逻辑执行完毕
-    <<< [Interceptor 完成] API 核心逻辑耗时: 5ms
 <<< [Filter 结束] HTTP GET /api/employees | 耗时: 12ms
 ```
-
-### 🧐 核心发现
-*   **Filter 总是第一个进入，最后一个离开**。它是真正意义上的“请求守护者”。
-*   **Interceptor 精确包裹了业务代码**。如果您想统计“数据库+逻辑”的纯净执行时间，拦截器是最佳选择。
-*   **Interceptor 可以通过 handler 对象获取元数据**。例如，我们可以根据特定的自定义注解来决定是否放行请求。
+你会发现，`Interceptor` 被完美包裹在 `Filter` 内部。如果在 Filter 中抛出了异常（如权限没过），请求将永远不会触达 `Interceptor`。这种分层防御机制极大地保护了服务器资源。
 
 ---
 
-## 4. 异常中断实验：Filter 崩了会怎样？
+## AI 辅助开发实战建议 (AI-assisted Development Suggestions)
 
-我们在实战中进行了一个“破坏性”实验：**如果在 `RequestLogFilter` 中直接抛出异常，拦截器还会执行吗？**
+Java 的中间件配置相对繁琐。
 
-### 🧪 实验现象
-1.  **客户端**：收到了 500 错误响应。
-2.  **控制台日志**：**完全没有** `PerformanceInterceptor` 的相关日志。
-3.  **结果**：请求在“大门口”（Filter）被拦截，由于异常未捕获，请求链路直接中断。
-
-### 🧐 架构深意：防线与边界
-*   **Filter 是第一道防线**：它独立于 Spring 框架之外。如果过滤器认定请求非法并抛出异常，请求将永远不会触达 Spring 的 `DispatcherServlet`，更不会触发后续的拦截器（Interceptor）。
-*   **资源保护**：在 Filter 层拦截非法请求能极大地保护服务器资源，因为它避免了昂贵的 Spring Bean 初始化、参数绑定和复杂的业务逻辑操作。
+> **最佳实践 Prompt**:
+> "我需要为现有的 Spring Boot 项目增加一个『限流』中间件。
+> 1. 请帮我分析：应该选择在 Filter 层还是 Interceptor 层实现？
+> 2. 请给出实现代码，并说明如何在 `WebMvcConfigurer` 中将其注册到特定的 `/api/**` 路径下，同时排除 `/api/public/**`。
+> 3. 请说明如何在拦截器中通过 AOP 获取当前执行的 Controller 方法上的自定义注解。"
 
 ---
 
-## 5. 总结：执行顺序全景图
+## 2-3 条扩展阅读 (Extended Readings)
 
-当一个请求进入 Spring Boot 应用时，它的预期生命周期如下：
-
-1.  **[Filter Before]**：`RequestLogFilter.java` 开始记录耗时。
-2.  **[DispatcherServlet]**：请求进入 Spring 核心枢纽。
-3.  **[Interceptor preHandle]**：拦截器识别到 Controller 方法，记录开始时间。
-4.  **[Controller Logic]**：执行您的业务逻辑。
-5.  **[Interceptor postHandle]**：逻辑执行结束。
-6.  **[Interceptor completion]**：拦截器收尾，计算业务纯净耗时。
-7.  **[Filter After/Finally]**：过滤器收尾，记录全链路总耗时。
-
----
-
-> [!IMPORTANT]
-> **结论**：Filter 负责“进场安检”（CORS、Auth、Logging），Interceptor 负责“场内秩序”（业务校验、性能统计）。如果安检没过（Filter 报错），拦截器将永远处于“待机”状态。
-
-**下一站建议**：完成中间件深度探索后，建议开启「数据库接入实战」，将当前的内存 Map 替换为真正的数据库存储。
+1. [Spring Docs: Handler Interceptors](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-config/interceptors.html) - 官方对拦截器的配置建议。
+2. [Baeldung: Filter vs Interceptor](https://www.baeldung.com/spring-mvc-handlerinterceptor-vs-filter) - 经典的对比文章。
+3. [Spring Security: Architecture](https://docs.spring.io/spring-security/reference/servlet/architecture.html) - 了解 Spring Security 是如何利用 Filter 链构建防御体系的。

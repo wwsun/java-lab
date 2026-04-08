@@ -155,6 +155,8 @@
 > 选用"任务管理系统"作为综合实战项目，涵盖用户认证、CRUD、状态流转、权限控制等典型 Web 应用场景。
 
 - [ ] **需求分析与数据建模**：设计用户表、任务表、标签表等核心数据模型，编写 DDL。
+- [ ] **🤖 AI 生成项目脚手架 (WIP)**：根据业务需求初始化项目脚手架（jdk17 + springboot3.2 + mysql8 + mybatis-plus + jwt + spring security + redis + slf4j + nginx + docker + docker-compose + AGENTS.md + CLAUDE.md）。
+- [ ] **🤖 Java 必备 Agent Skills (WIP)**: web-security, mybatis-plus, ...
 - [ ] **🤖 AI 生成项目骨架**：让 Agent 基于数据模型生成完整的 Entity + Mapper + Service + Controller 层骨架代码。
 - [ ] **核心业务实现**：完成任务的 CRUD、分页查询、条件搜索、状态流转（待做 → 进行中 → 已完成）。
 - [ ] **认证鉴权集成**：集成第三周的 JWT + Spring Security 实现用户注册、登录、权限拦截。

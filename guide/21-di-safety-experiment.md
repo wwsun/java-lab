@@ -1,63 +1,80 @@
-# 21-实战验证：IoC 与 DI 的“安全性”深度实验
+# 21 - 实战验证：IoC 与 DI 的“安全性”深度实验
 
-本指南旨在通过两个维度（**运行时日志** vs **单元测试模拟**），让您彻底掌握 Spring Boot 依赖注入的设计哲学。
+## 核心心智映射 (Core Mental Mapping)
 
----
+如果你把 Spring 容器想象成一个“自动化工厂”，依赖注入 (DI) 就是在这个工厂流水线上组装零件的过程。
 
-## 🎯 实验设计思路：为什么要“脱离 Spring”验证？
-
-在 Spring 环境内，`@Autowired` 几乎是无感的。但真正的架构高手会思考：**“如果有一天我的代码离开了框架，它还能跑吗？”**
-
-- **IoC 的本质**：是容器在帮我们管理生命周期。我们通过 `IoCDemoRunner` 观察容器内的“全家福”。
-- **DI 的安全性**：是关于代码的**健壮性**。我们通过 `DISafetyTest` 模拟“忘记初始化依赖”的极端情况，观察两种注入方式的防御能力。
-
----
-
-## 🧪 实验 1：Bean 的生命周期与容器盘点
-
-### 📍 涉及代码
-- [`IoCDemoRunner.java`](../src/main/java/com/javalabs/basics/IoCDemoRunner.java)
-- [`EmployeeServiceImpl.java`](../src/main/java/com/javalabs/service/impl/EmployeeServiceImpl.java) 中的 `@PostConstruct`
-
-### 🚀 运行与观察
-1. **启动应用**：运行 `JavaLabsApplication` 或执行 `mvn spring-boot:run`。
-2. **观察顺序**：
-    - 首先看 `EmployeeServiceImpl`：你会看到 `🌟 [IoC 验证]` 日志，它在 Web 端口开启**之前**就打印了。说明 Bean 的初始化是一个后台预热过程。
-    - 然后看 `IoCDemoRunner` 的盘点：注意 `employeeController` 的类型显示为 `EmployeeController`，这证明了它已被容器正确托管。
+| 注入方式 | 表现形式 | 心智映射 | 安全性 |
+| :--- | :--- | :--- | :--- |
+| **字段注入** | `@Autowired` 加在属性上 | 类似在 JS 对象上打补丁 | ❌ 低（隐藏依赖，不易测试） |
+| **构造器注入** | **构造函数传参** | 类似 Node.js 显式传参 | ✅ 高（编译期拦截，强制依赖） |
+| **Setter 注入** | `setService(...)` | 后期配置 | ⚠️ 中（可选依赖） |
 
 ---
 
-## 💉 实验 2：依赖注入的安全抗压测试
+## 概念解释 (Conceptual Explanation)
 
-这是本次实验的重头戏，我们将模拟离开 Spring 的温床，通过手动 `new` 对象来体验注入差异。
+### 1. 为什么“构造器注入”是现代标准？
+字段注入虽然代码量少，但它有巨大的缺陷：它允许你在**不完整**的状态下创建对象。
+而构造器注入（配合 `final` 关键字）保证了：**任何一个 Bean 在被 Spring 创建出来的一瞬间，它的所有依赖都必须已经到位**。
 
-### 📍 涉及代码
-- [`DISafetyTest.java`](../src/test/java/com/javalabs/basics/DISafetyTest.java)
-
-### 🚀 运行与演示步骤
-1. **在 IDE 中定位到 `DISafetyTest`**。
-2. **运行 `fieldInjectionTest`**：
-    - **现象**：测试通过（意即：它确实抛出了 `NullPointerException`）。
-    - **思考**：在 Node.js 中，如果您在 class 里写了一个字段没初始化就调用，也会报 `undefined is not a function`。属性注入的致命点在于：它是**隐式**的，编译器无法在写代码时提醒你忘了填这个坑。
-3. **尝试破坏 `constructorInjectionTest`**：
-    - **操作**：把测试代码中的 `new EmployeeController(mockService)` 改为 `new EmployeeController()`。
-    - **现象**：**编译器直接变红！**
-    - **结论**：这就是 **Constructor Injection (Lombok @RequiredArgsConstructor)** 的伟大之处。它利用 Java 语言的原生约束（构造函数签名），确保了没有任何一个 Controller 可以在依赖丢失的情况下“早产”。
+### 2. 生命周期钩子 (@PostConstruct)
+在 Java 中，构造函数执行时，依赖可能还没注入完成。如果你需要在对象创建后立即执行一些逻辑，应该使用 `@PostConstruct`。
 
 ---
 
-## 📖 核心总结与 Node.js 对标
+## 关键语法和 API 介绍 (Key Syntax and API Introduction)
 
-| 概念 | Spring 表现 | Node.js TS 类比 |
-| :--- | :--- | :--- |
-| **@Component** | 告诉 Spring：“请记住这个类” | 类似 NestJS 的 `@Injectable()` 注册 |
-| **@PostConstruct** | “Bean 组装好后，立刻执行我” | 类似 `onModuleInit()` 钩子 |
-| **构造器注入** | 利用 Java 构造函数传参 | `constructor(private readonly srv: Srv)` |
+### 黄金方案：Lombok + Final
+这是目前工业界最推荐的写法：
+```java
+@Service
+@RequiredArgsConstructor // 自动生成包含所有 final 字段的构造函数
+public class OrderService {
+    private final PaymentService paymentService; // 必须注入，不可修改
+}
+```
 
 ---
 
-> [!TIP]
-> **动手建议**：
-> 请尝试修改 `IoCDemoRunner` 中的过滤器，看看能不能搜出 `jacksonObjectMapper` 这个由 Spring Boot 提供的神秘“JSON 转换元勋”。
+## 典型用法 (Typical Usage)
 
-**关联任务清单**：[task.md](../.gemini/antigravity/brain/e09d359a-7a64-4473-8d18-192ebd1ea234/task.md)
+### 1. 安全验证实验
+我们可以模拟脱离 Spring 环境手动 `new` 对象：
+-   **字段注入**: `new MyService()` 编译通过，但调用时会报 `NullPointerException`。
+-   **构造器注入**: `new MyService()` 编译直接报错，强制你传入依赖。
+
+### 2. 初始化逻辑
+```java
+@PostConstruct
+public void init() {
+    // 此时依赖已注入，可以在这里加载缓存或预热数据
+}
+```
+
+---
+
+## 配套的代码示例解读 (Code Example Walkthrough)
+
+观察 `DISafetyTest.java` 中的对比：
+属性注入类似于在 Node.js 中写了一个 class，但其内部的 `service` 变量始终是 `undefined`，直到你在运行时手动给它赋值。这不仅违反了封装性，也让单元测试变得极其复杂。
+而构造器注入利用了 Java 的**强语言约束**，实现了“编译即文档”：只要能通过编译，对象就是完整的。
+
+---
+
+## AI 辅助开发实战建议 (AI-assisted Development Suggestions)
+
+很多旧项目还在使用 `@Autowired` 字段注入，这被视为反模式。
+
+> **最佳实践 Prompt**:
+> "请帮我 Review 这段遗留的 Java 代码：`[贴入代码]`。
+> 1. 请指出其中的字段注入（Field Injection）风险。
+> 2. 请利用 Lombok 的 `@RequiredArgsConstructor` 和 `final` 关键字，将其重构成安全的构造器注入。
+> 3. 请说明这种重构如何让单元测试（Mock）变得更容易。"
+
+---
+
+## 2-3 条扩展阅读 (Extended Readings)
+
+1. [Spring Blog: Why field injection is evil](https://blog.marcosbarbero.com/field-injection-is-evil/) - 必读的行业共识。
+2. [Baeldung: Constructor Injection in Spring](https://www.baeldung.com/constructor-injection-in-spring) - 详细对比各种注入方式。

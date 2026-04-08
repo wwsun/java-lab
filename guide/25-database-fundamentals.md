@@ -1,88 +1,81 @@
-# 25-关系型数据库基础：SQL DDL 核心规范
+# 25 - 关系型数据库基础：SQL DDL 核心规范
 
-在 Java 生态（特别是 Spring Boot）中，我们通常遵循“设计优先”的原则：先定义数据库 Schema (DDL)，再根据表结构编写 Entity 实体类。理解 DDL 是构建高质量 Java Web 应用的基石。
+## 核心心智映射 (Core Mental Mapping)
 
----
+在 Java 生态（特别是 Spring Boot）中，我们通常遵循“设计优先”的原则：先定义数据库 Schema (DDL)，再根据表结构编写 Entity 实体类。
 
-## 1. 核心概念映射
-
-| 概念 | 关系型数据库 (SQL) | 说明 |
-| :--- | :--- | :--- |
-| **表 (Table)** | `CREATE TABLE` | 数据的逻辑容器 |
-| **字段 (Field)** | `COLUMN` | 数据的属性及其数据类型 |
-| **主键 (PK)** | `PRIMARY KEY` | 唯一标识一行（通常使用自增 ID 或 UUID） |
-| **外键 (FK)** | `FOREIGN KEY` | 建立两表之间的关联（实现数据引用） |
+| 概念 | Node.js (Object / JSON) | 关系型数据库 (SQL) | 心智映射 |
+| :--- | :--- | :--- | :--- |
+| **数据容器** | Array / Object | **表 (Table)** | 数据的逻辑集合 |
+| **属性定义** | Key-Value | **字段 (Column)** | 严格的类型约束 |
+| **唯一标识** | `_id` (MongoDB) | **主键 (Primary Key)** | 每一行的身份证 |
+| **数据关联** | 嵌套对象 / Reference | **外键 (Foreign Key)** | 物理级的强引用关系 |
 
 ---
 
-## 2. 一对多关系设计：用户与任务
+## 概念解释 (Conceptual Explanation)
 
-在我们的实战场景中，**一个用户 (`User`) 可以拥有多个任务 (`Task`)**。
+### 1. DDL (Data Definition Language)
+数据定义语言。用于创建、修改和删除数据库的结构（表、索引等）。与操作数据的 DML (Insert/Update) 不同，DDL 关注的是“容器”本身。
 
-### 2.1 心智模型
--   **父表 (Parent Table)**: `users` (被引用的地方)
--   **子表 (Child Table)**: `tasks` (持有外键的一方)
-
-> [!important] 设计规范
-> 在关系型数据库中，“多” 的一方（子表）负责持有外键指向 “一” 的一方（父表）。
+### 2. 一对多关系 (One-to-Many)
+这是最常见的业务模型。
+-   **原则**: “多”的一方（子表）持有“一”的一方（父表）的主键作为外键。
+-   **示例**: 一个用户 (User) 拥有多个任务 (Task)。`tasks` 表中必须有一个 `user_id` 字段指向 `users` 表。
 
 ---
 
-## 3. 实操：编写 DDL 脚本
+## 关键语法和 API 介绍 (Key Syntax and API Introduction)
 
-以下是符合 MySQL 8+ 或 H2 兼容的 DDL 语法。我们将使用 `BIGINT` 自增 ID 和现代的时间字段。
-
-### 3.1 创建用户表 (`users`)
-
+### 核心 DDL 语法 (MySQL 8.x)
 ```sql
--- 仅供理解设计方案，后续 Spring Boot 整合时将由框架加载
 CREATE TABLE `users` (
-    `id` BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '自增主键',
-    `username` VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
-    `email` VARCHAR(100) NOT NULL UNIQUE COMMENT '邮箱',
-    `password` VARCHAR(255) NOT NULL COMMENT '哈希后的密码',
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户基本信息表';
-```
-
-### 3.2 创建任务表 (`tasks`)
-
-```sql
-CREATE TABLE `tasks` (
-    `id` BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '自增主键',
-    `user_id` BIGINT NOT NULL COMMENT '所属用户 ID (外键)',
-    `title` VARCHAR(200) NOT NULL COMMENT '任务标题',
-    `description` TEXT COMMENT '任务描述',
-    `status` VARCHAR(20) DEFAULT 'PENDING' COMMENT '任务状态: PENDING, DOING, DONE',
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    -- 建立物理外键约束
-    CONSTRAINT `fk_tasks_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='任务列表';
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY, -- 主键自增
+    `username` VARCHAR(50) NOT NULL UNIQUE, -- 唯一约束
+    `email` VARCHAR(100) NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- 时间戳
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
 ---
 
-## 4. DDL 与 Java 开发的关系
+## 典型用法 (Typical Usage)
 
-在 Java 的 **MyBatis-Plus** 体系中：
-1.  **物理表** 是整个系统的持久化基石。
-2.  **Entity (实体类)** 是 Java 层面对该表的映射，通常通过 Lombok 注解简化开发。
-3.  **Mapper** 负责执行 SQL，MyBatis-Plus 通过分析映射关系为您提供基础 CRUD 能力。
+### 1. 约束的最佳实践
+-   **NOT NULL**: 尽量所有字段都加上非空约束。
+-   **DEFAULT**: 为枚举字段（如状态）设置默认值。
+-   **COMMENT**: 必须为每个字段写中文注释，这对后期自动生成代码非常重要。
 
-理解了 DDL 的详细定义，您就能更好地指揮 AI Agent 为您生成对应的 Service 层骨架和业务代码。
-
----
-
-## 📚 扩展阅读
-1. [MySQL 8.0 官方文档: CREATE TABLE](https://dev.mysql.com/doc/refman/8.0/en/create-table.html)
-2. [数据库范式 (Normalization) 浅析](https://www.baeldung.com/cs/database-normalization) - 了解 1NF, 2NF, 3NF 基本原则。
+### 2. 类型选择
+-   **主键**: 统一使用 `BIGINT`（对应 Java 的 `Long`），支持自增或分布式 ID。
+-   **字符串**: 长度超过 255 建议考虑 `TEXT`，常规名称用 `VARCHAR`。
 
 ---
 
-### [运行指南]
-您可以将上述 SQL 暂存，在后续 **MyBatis-Plus** 整合实验中，我们将：
-1.  在 `src/main/resources` 下创建 `schema.sql`。
-2.  配置 Spring Boot 自动初始化。
-3.  使用 Lombok 生成对应的 `User` 和 `Task` 实体类。
+## 配套的代码示例解读 (Code Example Walkthrough)
+
+观察项目中的 `schema.sql`:
+我们定义了 `users` 和 `tasks` 两个表。
+-   `tasks` 表通过 `CONSTRAINT fk_tasks_user` 建立了物理外键。
+-   `ON DELETE CASCADE`: 意味着当一个用户被删除时，他名下的所有任务也会被自动清理。
+这种设计保证了数据的**完整性**，即使在直接操作数据库时也不会出现孤儿数据。
+
+---
+
+## AI 辅助开发实战建议 (AI-assisted Development Suggestions)
+
+手动写 DDL 很容易笔误，建议交给 AI。
+
+> **最佳实践 Prompt**:
+> "我需要为一个『图书管理系统』设计 DDL。
+> 1. 请生成 `books` 表（书名、作者、ISBN、库存）和 `categories` 表（分类名）。
+> 2. 它们之间是多对一关系（一本书属于一个分类）。
+> 3. 请包含 `created_at` 和 `updated_at` 字段，并生成 MySQL 8 兼容的 DDL 脚本。
+> 4. 请为所有字段添加详尽的中文 COMMENT。"
+
+---
+
+## 2-3 条扩展阅读 (Extended Readings)
+
+1. [MySQL 8.0: CREATE TABLE Reference](https://dev.mysql.com/doc/refman/8.0/en/create-table.html) - 官方语法手册。
+2. [Database Normalization (1NF, 2NF, 3NF)](https://www.baeldung.com/cs/database-normalization) - 了解如何优雅地拆分表结构。
