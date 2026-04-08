@@ -8,10 +8,12 @@ import com.javalabs.mapper.BookMapper;
 import com.javalabs.service.BookService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 书籍管理业务实现类
@@ -22,6 +24,10 @@ import java.util.Optional;
 public class BookServiceImpl implements BookService {
 
     private final BookMapper bookMapper;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    private static final String CACHE_BOOK_KEY = "book:cache:";
+    private static final long CACHE_TTL = 30; // 缓存过期时间（分钟）
 
     @Override
     public Page<Book> getBooksByPage(int current, int size, String title, Long categoryId) {
@@ -46,7 +52,29 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Optional<Book> getBookById(Long id) {
-        return Optional.ofNullable(bookMapper.selectById(id));
+        String key = CACHE_BOOK_KEY + id;
+
+        // 1. 尝试从 Redis 缓存获取
+        Book cachedBook = (Book) redisTemplate.opsForValue().get(key);
+        if (cachedBook != null) {
+            log.info("🚀 缓存命中 (Cache Hit): {}", key);
+            return Optional.of(cachedBook);
+        }
+
+        // 2. 缓存缺失，查询数据库
+        log.info("🔍 缓存缺失 (Cache Miss)，从 DB 查询 ID: {}", id);
+        Book book = bookMapper.selectById(id);
+
+        // 3. 将结果回填至缓存
+        if (book != null) {
+            redisTemplate.opsForValue().set(key, book, CACHE_TTL, TimeUnit.MINUTES);
+            log.info("📥 已回填缓存: {}", key);
+        } else {
+            // 特别提示：如果 DB 也没有，理论上可以缓存一个空值防止穿透，这里简单返回 Optional.empty()
+            log.warn("⚠️ 数据库中不存在 ID 为 {} 的书籍", id);
+        }
+
+        return Optional.ofNullable(book);
     }
 
     @Override
@@ -60,6 +88,9 @@ public class BookServiceImpl implements BookService {
     public Book updateBook(Long id, Book book) {
         book.setId(id);
         if (bookMapper.updateById(book) > 0) {
+            // 写操作后删除缓存 (Cache Evict)
+            redisTemplate.delete(CACHE_BOOK_KEY + id);
+            log.info("🔥 数据已更新，已清理缓存 key: {}{}", CACHE_BOOK_KEY, id);
             return book;
         }
         throw new ResourceNotFoundException("未找到 ID 为 " + id + " 的书籍");
@@ -67,7 +98,10 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void deleteBook(Long id) {
-        bookMapper.deleteById(id);
-        log.info("🗑️ 已删除书籍 ID：{}", id);
+        if (bookMapper.deleteById(id) > 0) {
+            // 删除后同时清理缓存
+            redisTemplate.delete(CACHE_BOOK_KEY + id);
+            log.info("🗑️ 书籍 ID: {} 已删除，并清理相关缓存", id);
+        }
     }
 }
