@@ -1,170 +1,94 @@
 # 43 - Spring Security 过滤器链与 Node.js 概念映射
 
-恭喜进入 **Week 3**！在上一周，我们使用 `HandlerInterceptor` 手动实现了 JWT 认证。这在学习阶段非常管用，但在生产级 Java 项目中，安全职责通常由 **Spring Security** 过滤器链接管。
+## 核心心智映射 (Core Mental Mapping)
 
-## 1. 核心概念：什么是 Filter Chain？
+如果你有 Express/NestJS 的开发经验，你一定熟悉“中间件 (Middleware)”。Spring Security 的核心也是一套类似的机制，叫 **Security Filter Chain**。
 
-在 Node.js (Express/NestJS) 中，我们习惯于“中间件 (Middleware)”：
-```javascript
-app.use(logger);
-app.use(auth);
-app.use(router);
-```
-
-Spring Security 的核心也是一套类似的机制，叫 **Security Filter Chain**。它像是一道道安检关卡，所有进入 API 的 HTTP 请求都必须依次通过这些关卡。
-
-### Node.js vs Java Spring Security 映射表
-
-| 维度 | Node.js (Express) | Java (Spring Security) |
-| :--- | :--- | :--- |
-| **拦截层级** | 框架路由级 (Middleware) | Servlet 级 (Filter) |
-| **执行顺序** | 按 `app.use` 顺序执行 | 按 Filter Order 执行 (通常由框架编排) |
-| **认证上下文** | `req.user = payload` | `SecurityContextHolder.getContext()` |
-| **权限控制** | 自定义 Guard 或中间件 | `@PreAuthorize` 注解或规则配置 |
+| 维度 | Node.js (Express / Nest) | Java (Spring Security) | 心智映射 |
+| :--- | :--- | :--- | :--- |
+| **拦截层级** | 框架路由级 (Middleware) | **Servlet 级 (Filter)** | 更底层的安检关卡 |
+| **认证上下文** | `req.user = payload` | **`SecurityContextHolder`** | 全局可读的身份盒子 |
+| **执行顺序** | 按 `app.use` 声明顺序 | **按 Filter Order 排序** | 严谨的关卡序列 |
+| **权限控制** | 自定义 Guard 或中间件 | **`@PreAuthorize` 注解** | 声明式的准入规则 |
+| **认证对象** | 纯 JSON 对象 | **`Authentication` 对象** | 强类型的凭证实体 |
 
 ---
 
-## 2. 为什么要从 Interceptor 切换到 Filter？
+## 概念解释 (Conceptual Explanation)
 
-你可能会问：“我的 `JwtInterceptor` 跑得好好的，为什么要换成 Spring Security 的 `Filter`？”
+### 1. 为什么要用 Filter 而非 Interceptor？
+-   **Interceptor**: 属于 Spring MVC，只能拦截进入 Controller 的请求。
+-   **Filter**: 属于 Servlet 规范，比 Interceptor 更早触发。这意味着在请求还没解析 URL 之前，安全框架就能把恶意请求挡在门外（如 SQL 注入、非法 Token）。
 
-1.  **更底层的防御**：`Filter` 运行在 Servlet 层，比 Spring MVC 的 `Interceptor` 更早触发。这意味着在 Spring 还没开始解析 URL 映射之前，恶意请求就可以被拦截掉。
-2.  **标准化的上下文**：Spring Security 会自动管理“当前登录人”信息。你只需要把解析出的用户信息存入 `SecurityContextHolder`，后续在 Service 层、Controller 层甚至 Audit 审计层都能直接拿到，不再需要手动在 `request.setAttribute` 里传值。
-3.  **RBAC 自动化**：你可以直接通过注解（如 `@PreAuthorize("hasRole('ADMIN')")`）来声明某个接口只有管理员能进。
-
----
-
-## 3. Spring Security 的“过滤器链”长什么样？
-
-当你启动 Spring Security 后，默认会有十几个过滤器在工作。我们通常最关注以下三个动作：
-
-1.  **提取凭证**：从 Header 读取 `Authorization: Bearer <token>`。
-2.  **验证并绑定**：验证 Token。如果合法，创建一个 `Authentication` 对象并塞进“上下文盒子”里。
-3.  **放行或拦截**：根据配置好的规则（哪些路径白名单，哪些路径要权限）决定请求是继续还是返回 403。
+### 2. SecurityContextHolder (安全上下文)
+这是 Spring Security 的灵魂。它使用 `ThreadLocal` 绑定当前线程。
+-   你可以随时随地（包括 Service 层）通过 `SecurityContextHolder.getContext().getAuthentication()` 拿到当前登录人的身份，而不需要在方法参数里层层传递。
 
 ---
 
-## 4. 动手之前的预热
+## 关键语法和 API 介绍 (Key Syntax and API Introduction)
 
-在接下来的重构计划中，我们将：
-1.  **定义 Filter**：创建一个继承自 `OncePerRequestFilter` 的类，它负责拦截每个请求并解析 JWT。
-2.  **配置 Chain**：在 `SecurityConfig` 中告诉 Spring Security：“请在执行 UsernamePassword 验证之前，先跑一下我的 JWT 过滤器”。
-3.  **开启 RBAC**：在方法上加一句代码，就能区分“普通用户”和“管理员”。
+### 核心组件
+-   **`OncePerRequestFilter`**: 确保每个请求只被拦截一次的基类。
+-   **`HttpSecurity`**: 用于编排过滤器链的配置类（链式调用）。
+-   **`SimpleGrantedAuthority`**: 权限/角色的封装类。**注意：Spring Security 默认角色前缀是 `ROLE_`。**
 
 ---
 
-## 5. 重构核心：从 Interceptor 到 Filter
+## 典型用法 (Typical Usage)
 
-### 5.1 定义 JWT 认证过滤器 (Filter)
-在 Node.js 中，你会写一个 `authMiddleware`。在 Spring Security 中，我们继承 `OncePerRequestFilter`：
-
+### 1. 定义 JWT 过滤器
 ```java
-@Component
-@RequiredArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtUtils jwtUtils;
-
+public class JwtFilter extends OncePerRequestFilter {
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-
-        // 1. 提取 Token (Authorization: Bearer <token>)
-        String authHeader = request.getHeader("Authorization");
-        if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response); // 无 Token 则放行，交给后续 Security 配置处理
-            return;
-        }
-
-        // 2. 验证并解析
-        String token = authHeader.substring(7);
-        try {
-            Claims claims = jwtUtils.parseToken(token);
-            String username = claims.getSubject();
-            String role = (String) claims.get("role");
-
-            // 3. 核心重构：将身份绑定到 Spring Security 上下文
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // 注意：Spring Security 默认角色前缀是 ROLE_
-                List<SimpleGrantedAuthority> authorities = 
-                    List.of(new SimpleGrantedAuthority("ROLE_" + role));
-
-                UsernamePasswordAuthenticationToken authentication = 
-                    new UsernamePasswordAuthenticationToken(username, null, authorities);
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-        } catch (Exception e) {
-            // 验证失败不在此处抛异常，让上下文保持为空，后续由 SecurityConfig 统一拦截返回 403
-        }
-        filterChain.doFilter(request, response);
+    protected void doFilterInternal(...) {
+        // 1. 解析 Header
+        // 2. 校验 Token
+        // 3. 构建 Authentication 并存入 SecurityContextHolder
+        // 4. chain.doFilter(request, response) 放行
     }
 }
 ```
 
-### 5.2 配置过滤器链 (SecurityConfig)
-你需要告诉 Spring Security 何时执行你的过滤器，并开启注解支持：
-
+### 2. 配置安全规则
 ```java
-@Configuration
-@EnableWebSecurity
-@EnableMethodSecurity // 开启方法级权限控制 (@PreAuthorize)
-public class SecurityConfig {
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
-        return http
-            .csrf(csrf -> csrf.disable()) // JWT 架构通常禁用 CSRF
-            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 无状态
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // 白名单放行
-                .anyRequest().authenticated()               // 其他全部需要认证
-            )
-            // 核心：在标准用户名密码过滤器之前插入我们的 JWT 过滤器
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
-    }
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) {
+    return http
+        .csrf(csrf -> csrf.disable()) // 无状态 API 禁用 CSRF
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/api/auth/**").permitAll() // 白名单
+            .anyRequest().authenticated()               // 其余必验
+        )
+        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+        .build();
 }
 ```
 
 ---
 
-## 6. 使用：再也不用 `request.getAttribute`
+## 配套的代码示例解读 (Code Example Walkthrough)
 
-重构后，你不再需要手动从 `request` 里取值，Spring Security 提供了更优雅的方式。
-
-### 6.1 获取当前登录人
-**Before (Interceptor):**
-```java
-String username = (String) request.getAttribute("username");
-```
-
-**After (Spring Security):**
-```java
-// 方式 A：通过静态上下文获取 (可以在 Service 层甚至任何地方使用)
-String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-// 方式 B：Controller 方法直接注入 Principal 对象
-@GetMapping("/me")
-public String getCurrentUser(Principal principal) {
-    return principal.getName();
-}
-```
-
-### 6.2 权限控制 (RBAC)
-**Before:** 在拦截器里写复杂的 `if (role.equals("ADMIN"))` 判断，或者手动抛出异常。
-
-**After:** 只需要在 Controller 方法上加一个注解，Spring Security 会自动校验 `SecurityContext` 里的角色。
-```java
-@GetMapping("/admin/users")
-@PreAuthorize("hasRole('ADMIN')") // 只有角色为 ROLE_ADMIN 的用户才能进入
-public List<User> getAllUsers() {
-    return userService.list();
-}
-```
+观察项目中的 **权限注解机制 (@PreAuthorize)**:
+在 Controller 方法上标注 `@PreAuthorize("hasRole('ADMIN')")`。
+它的底层原理是：Spring 在执行方法前，会去 `SecurityContextHolder` 里查找是否存在名为 `ROLE_ADMIN` 的权限。这种“声明式”的权限管理，让你的业务代码不再充斥着 `if-else` 的权限判断，实现了真正的关注点分离。
 
 ---
 
-## 扩展阅读
-1. [Spring Security Architecture (Official)](https://spring.io/guides/topicals/spring-security-architecture)
-2. [Servlet Filters vs Spring Interceptors](https://www.baeldung.com/spring-mvc-handlerinterceptor-vs-filter)
-3. [Understanding the SecurityContextHolder](https://www.baeldung.com/spring-security-context)
+## AI 辅助开发实战建议 (AI-assisted Development Suggestions)
+
+Spring Security 是 Java 最复杂的框架之一，配置极易出错。
+
+> **最佳实践 Prompt**:
+> "我正在为一个 Spring Boot 3 应用配置 Spring Security。
+> 1. 请帮我编写一个 `SecurityConfig`，支持 JWT 无状态认证。
+> 2. 请设置以下规则：`/api/public` 允许匿名访问，`/api/admin` 仅限 ADMIN 角色，其余需要登录。
+> 3. 请生成如何处理『401 未登录』和『403 无权限』的自定义 `AuthenticationEntryPoint` 和 `AccessDeniedHandler`，并返回标准 JSON。"
+
+---
+
+## 2-3 条扩展阅读 (Extended Readings)
+
+1. [Spring Security Architecture](https://spring.io/guides/topicals/spring-security-architecture) - 掌握过滤器链的宏观视野。
+2. [Baeldung: Guide to @PreAuthorize](https://www.baeldung.com/spring-security-expressions) - 深入表达式权限控制。
+3. [Understanding SecurityContextHolder](https://www.baeldung.com/spring-security-context) - 彻底理解安全上下文的存储逻辑。
