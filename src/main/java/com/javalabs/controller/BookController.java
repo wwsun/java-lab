@@ -34,6 +34,16 @@ public class BookController {
         
         return Result.success(bookService.getBooksByPage(current, size, title, categoryId));
     }
+    
+    /**
+     * 获取书籍详情 (所有人可访问)
+     */
+    @GetMapping("/{id}")
+    public Result<Book> getBookById(@PathVariable Long id) {
+        return bookService.getBookById(id)
+                .map(Result::success)
+                .orElseThrow(() -> new ResourceNotFoundException("未找到 ID 为 " + id + " 的书籍"));
+    }
 
     /**
      * 新增书籍 (仅限 ADMIN 访问)
