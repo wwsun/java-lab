@@ -1,5 +1,3 @@
-version: '3.8' # Docker Compose 文件格式版本，对标 API 版本
-
 services: # 定义项目中需要运行的服务组
   mysql: # 服务名称，可作为容器间通信的主机名
     image: mysql:8.0 # 使用的官方镜像及版本标签
@@ -9,15 +7,13 @@ services: # 定义项目中需要运行的服务组
       # 数据库初始化配置：设置 Root 密码及创建初始数据库
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: java_labs
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
     ports: # 端口映射 [宿主机端口:容器内部端口]
       - '3306:3306' # 将宿主机的 3306 转发到容器的 3306，使 IDEA 可连接
-    volumes: # 目录挂载（卷映射），实现数据持久化
-      # 将宿主机的 ./mysql_data 映射到 MySQL 的数据目录，防止容器销毁后数据丢失
-      - ./mysql_data:/var/lib/mysql
-      # 挂载初始 SQL 脚本 (可选：若需要容器启动时自动执行 SQL 可取消注释)
-      # - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/2.sql
+    # volumes: # 目录挂载 (macOS Colima 下挂载可能有权限问题，暂时禁用)
+    # 将宿主机的 ./mysql_data 映射到 MySQL 的数据目录，防止容器销毁后数据丢失
+    # - ./mysql_data:/var/lib/mysql
+    # 挂载初始 SQL 脚本 (可选：若需要容器启动时自动执行 SQL 可取消注释)
+    # - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/2.sql
 
   redis: # Redis 缓存服务
     image: redis:7-alpine # 使用基于 Alpine 的镜像，体积极小，安全性高
@@ -25,8 +21,8 @@ services: # 定义项目中需要运行的服务组
     restart: always
     ports:
       - '6379:6379' # 将宿主机的 6379 转发到 Redis 默认端口
-    volumes: # Redis 数据持久化
-      - ./redis_data:/data # 映射 Redis 数据存储目录
+    # volumes: # Redis 数据持久化 (macOS Colima 下 Alpine 镜像挂载可能有权限问题，暂时禁用)
+    #   - ./redis_data:/data # 映射 Redis 数据存储目录
 
 networks: # 定义容器网络
   default: # 默认网络配置

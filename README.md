@@ -9,6 +9,7 @@
 - **IDE**: IntelliJ IDEA
 - **开发框架**: Sprint Boot 3.3
 - **测试框架**: JUnit 5
+- **Docker**: macos 下使用 colima + docker compose
 
 ## 目录结构
 
@@ -20,10 +21,14 @@
 ## 快速开始
 
 1. **环境准备**：确保已安装 Docker 和 Docker Compose。在项目根目录下运行以下命令启动中间件（MySQL & Redis）：
+
    ```bash
    colima start # 启动 docker
    docker compose up -d # 启动中间件
+
+   docker compose down # 停止中间件
    ```
+
 2. **导入项目**：将本项目直接导入或使用 IntelliJ IDEA 打开。
 3. **运行应用**：在 IDEA 中找到 `JavaLabsApplication.java`，右键点击并选择 `Run` 或 `Debug`。
 4. **验证环境**：在终端运行以下命令以验证环境是否正常：

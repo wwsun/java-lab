@@ -125,7 +125,7 @@
 - [x] **Redis 基础数据结构**：掌握五种核心数据结构的特点与适用场景——`String`（缓存/计数器）、`Hash`（对象字段存储）、`List`（消息队列/最新列表）、`Set`（去重/交集运算）、`Sorted Set`（排行榜/延迟队列）。
 - [x] **Spring Boot 接入 Redis**：引入 `spring-boot-starter-data-redis` 并配置连接参数，分别通过 `RedisTemplate` 和 `StringRedisTemplate` 操作不同数据结构。
 - [x] **缓存模式实践**：实现 Cache-Aside 模式（先查缓存，未命中再查 DB 并回填缓存）。
-- [ ] **Spring Cache 注解**：使用 `@Cacheable`, `@CacheEvict`, `@CachePut` 简化缓存逻辑。
+- [x] **Spring Cache 注解**：使用 `@Cacheable`, `@CacheEvict`, `@CachePut` 简化缓存逻辑。
 - [ ] **缓存常见问题认知**：理解缓存穿透、击穿、雪崩的概念及基础规避思路（空值缓存、随机过期时间）。
 - [ ] **API 文档集成**：集成 Knife4j 或 SpringDoc（Swagger UI）生成在线 API 文档，让前后端协作更高效。
 
@@ -145,37 +145,115 @@
 - [Spring Data Redis 官方文档](https://docs.spring.io/spring-data/redis/reference/)：Redis 集成的权威参考指南。
 - [Knife4j 官方文档](https://doc.xiaominfo.com/)：国内最流行的 Swagger 增强 UI，中文文档齐全。
 
-## 第四周：综合实战——任务管理系统与部署
+## 第四周：综合实战——会议室预约系统与部署
 
-最终目标是完成一个完整的前后端分离项目，体验从数据建模到容器化部署的全流程，证明你已具备独立开发 Java Web 应用的能力。
+最终目标是完成一个完整的前后端分离项目（会议室预约系统），体验从需求分析、数据建模到容器化部署的全流程，证明你已具备独立开发 Java Web 应用的能力。
 
-### 任务管理系统开发（Day 1-2）
+> [!note] 题目来源
+> 本周实战项目来源于 [题目描述](../minus1.nie.netease.com/fullstack_example/sunweiwei01-H26866/题目描述.md)，是一个在线会议室预约平台，解决线下会议室预约混乱、冲突频发的痛点。
 
-> [!info] 实战项目
-> 选用"任务管理系统"作为综合实战项目，涵盖用户认证、CRUD、状态流转、权限控制等典型 Web 应用场景。
+### 前置准备：通用全栈工程脚手架（独立仓库）
 
-- [ ] **需求分析与数据建模**：设计用户表、任务表、标签表等核心数据模型，编写 DDL。
-- [ ] **🤖 AI 生成项目脚手架 (WIP)**：根据业务需求初始化项目脚手架（jdk17 + springboot3.2 + mysql8 + mybatis-plus + jwt + spring security + redis + slf4j + nginx + docker + docker-compose + AGENTS.md + CLAUDE.md）。
-- [ ] **🤖 Java 必备 Agent Skills (WIP)**: web-security, mybatis-plus, ...
-- [ ] **🤖 AI 生成项目骨架**：让 Agent 基于数据模型生成完整的 Entity + Mapper + Service + Controller 层骨架代码。
-- [ ] **核心业务实现**：完成任务的 CRUD、分页查询、条件搜索、状态流转（待做 → 进行中 → 已完成）。
+> [!important] 独立仓库
+> 该脚手架是一个**独立的通用模板仓库**，不绑定会议室预约系统等具体业务。目标是沉淀一套可复用的前后端分离 Web 工程基线，后续项目通过 fork / clone 快速启动。
+
+目录结构：
+
+```
+├── doc/                        # 项目文档
+├── backend/                    # Java 后端（Spring Boot）
+└── frontend/                   # 前端（Vite + React + TypeScript）
+```
+
+#### 后端脚手架 (backend/)
+
+- [ ] **Spring Boot 基础骨架**：初始化 Spring Boot 3.2 + JDK 17 + Maven 项目，配置 `.sdkmanrc`。
+- [ ] **数据层**：集成 MyBatis-Plus + MySQL 8.4 驱动 + HikariCP 连接池，预置 `application-dev.yml` / `application-prod.yml` 多环境配置。
+- [ ] **统一响应与异常处理**：封装 `Result<T>` 统一返回结构 + `@ControllerAdvice` 全局异常处理器 + 业务异常基类。
+- [ ] **参数校验**：集成 `spring-boot-starter-validation`，预置常用校验注解示例。
+- [ ] **安全认证**：集成 Spring Security + JWT，预置登录/注册/Token 刷新的完整认证流程骨架，包含 CORS 跨域配置。
+- [ ] **Redis 集成**：集成 `spring-boot-starter-data-redis`，配置 JSON 序列化，预置 Spring Cache 注解示例。
+- [ ] **API 文档**：集成 Knife4j（SpringDoc），自动生成在线 API 文档。
+- [ ] **日志配置**：配置 SLF4J + Logback，预置日志分级和文件滚动策略。
+- [ ] **代码规范**：Lombok 全局启用，代码遵循 P3C 规约，预置 `.editorconfig`。
+
+#### 前端脚手架 (frontend/)
+
+- [ ] **Vite + React + TypeScript 基础骨架**：使用 `create-vite` 初始化项目。
+- [ ] **UI 组件库**：集成 shadcn/ui + tailwindcss。
+- [ ] **路由**：集成 React Router v6，预置登录页 / 主布局 / 404 页面路由骨架。
+- [ ] **HTTP 层**：封装 Axios 实例，统一处理请求/响应拦截（Token 注入、401 自动跳转登录、错误提示）。
+- [ ] **状态管理 (Optional)**：集成 Zustand，预置用户认证状态管理示例。
+- [ ] **Mock 数据 (Optional)**：集成 MSW（Mock Service Worker）支持前端独立开发调试。
+
+#### 基础设施与部署
+
+- [ ] **docker-compose.yml**：编排 MySQL 8.4 + Redis 7 + Nginx 开发/部署环境，支持 `docker compose up -d` 一键启动。
+- [ ] **后端 Dockerfile**：多阶段构建（Maven build → JRE runtime），优化镜像体积。
+- [ ] **前端 Dockerfile**：多阶段构建（Node build → Nginx serve），产物直接托管在 Nginx 中。
+- [ ] **Nginx 配置**：预置反向代理规则——前端静态资源 + `/api/**` 转发到 Spring Boot 后端。
+- [ ] **数据库初始化**：`doc/sql/init.sql` 预置建库建表脚本模板，Docker Compose 启动时自动执行。
+
+#### 文档 (doc/)
+
+- [ ] **README.md**：项目简介、技术栈、快速启动指南（含 Docker 和本地开发两种模式）。
+- [ ] **API 设计规范**：RESTful URL 命名、HTTP Method 语义、状态码使用、统一响应格式等约定。
+- [ ] **开发规范**：Git 分支策略、提交信息规范、代码审查 checklist。
+- [ ] **部署指南**：Docker Compose 部署流程、环境变量配置说明、CI/CD 接入指引。
+
+#### AI 辅助开发配置
+
+- [ ] **AGENTS.md**：配置 AI Agent 行为指令，包含技术栈约束、代码规范、生成模板要求。
+- [ ] **CLAUDE.md**：配置 Claude Code 项目上下文，确保 AI 生成代码符合脚手架规范。
+
+---
+
+### 会议室预约系统开发（Day 1-3）
+
+> [!info] 实战项目：会议室预约系统 (meetingroom)
+> 公司多间会议室靠即时通讯"喊话占位"，经常出现预约冲突、一人占多室、空闲时段不透明等问题。本项目核心目标是实现**会议室浏览 + 空闲时段查询 + 在线预约（含冲突检测）**的完整闭环。
+
+#### 需求分析与数据建模
+
+- [ ] **需求梳理**：明确两大页面（会议室列表页、预约日历页）和两大功能模块（会议室查看、预约管理），梳理核心业务流程：浏览列表 → 查看空闲时段 → 发起预约 → 冲突检测 → 预约成功。
+- [ ] **数据建模与 DDL 编写**：设计核心数据模型并编写 DDL——
+  - `meeting_room` 表：名称、位置、容纳人数、设施标签（投影、白板、视频会议等）
+  - `reservation` 表：关联会议室与用户，包含会议主题、开始/结束时间、预约状态
+  - `user` 表：基础用户信息（用于认证鉴权）
+- [ ] **业务规则确认**：确保数据模型能支撑以下业务规则——同一会议室同一时段不允许重叠预约；同一用户同一时段只能预约一间会议室；单次预约时长上限 4 小时；不能预约过去的时间；会议室数据预置初始化。
+
+#### 基于通用脚手架定制
+
+- [ ] **Fork 通用脚手架**：从通用脚手架仓库 fork/clone，重命名为 `meetingroom` 项目。
+- [ ] **🤖 AI 生成业务骨架**：让 Agent 基于数据模型生成完整的 Entity + Mapper + Service + Controller 层骨架代码，融入脚手架已有的统一响应、异常处理、认证鉴权等基础设施。
+
+#### 核心业务实现
+
+- [ ] **会议室查看模块**：
+  - 会议室列表接口：返回名称、位置、容量、设施信息
+  - 支持按容量、设施标签筛选
+  - 查看指定会议室指定日期的空闲时段
+- [ ] **预约管理模块**：
+  - 创建预约接口：填写会议主题 + 时间段，执行双重冲突校验（会议室时段冲突 + 用户时段冲突）+ 业务规则校验（时长上限、不可预约过去时间）
+  - 我的预约列表接口：支持按会议室、日期范围筛选，支持分页
 - [ ] **认证鉴权集成**：集成第三周的 JWT + Spring Security 实现用户注册、登录、权限拦截。
 
-### Docker 容器化、Nginx 与部署（Day 3-4）
+### Docker 容器化、Nginx 与部署（Day 4-5）
 
 - [ ] **编写 Dockerfile**：将 Spring Boot 应用打包为 Docker 镜像，理解多阶段构建（Multi-stage Build）的优化思路。
-- [ ] **Docker Compose 开发环境**：编排应用 + MySQL + Redis 三件套的本地开发环境，一键启动。
+- [ ] **Docker Compose 编排**：编排应用 + MySQL + Redis + Nginx 四件套的本地开发/部署环境，一键启动。
 - [ ] **多环境配置管理**：配置 `application-dev.yml` / `application-prod.yml`，理解 Spring Profiles 机制。
-- [ ] **Nginx 反向代理配置**：在 Docker Compose 中加入 Nginx 容器，配置反向代理将请求转发到 Spring Boot 应用。理解 Nginx 在前后端分离架构中的角色——静态资源托管 + API 反向代理 + 负载均衡。
+- [ ] **Nginx 反向代理配置**：配置反向代理将请求转发到 Spring Boot 应用。理解 Nginx 在前后端分离架构中的角色——静态资源托管 + API 反向代理 + 负载均衡。
 - [ ] **SSH 远程部署基础**：练习通过 SSH 连接远程服务器，完成 Docker 环境安装、镜像拉取和容器启动的基本操作流程。
 - [ ] **🤖 AI 生成 CI/CD 配置**：让 Agent 分别生成 GitHub Actions 和 GitLab CI（`.gitlab-ci.yml`）的工作流配置，实现自动化构建、镜像推送和远程部署。
 
-### 性能基础、通知模块与收尾（Day 5-周末）
+### 性能优化、测试与收尾（周末）
 
-- [ ] **接口性能基准测试**：使用 Apache Benchmark (`ab`) 或 `wrk` 对核心接口做压力测试，建立性能基线。
-- [ ] **慢 SQL 排查与索引优化**：了解 `EXPLAIN` 分析执行计划，为高频查询添加合适的索引。
-- [ ] **通知模块 (Optional, 消息队列体验)**：引入 RabbitMQ，实现"任务分配时发送通知"的异步解耦流程，体验消息队列在 Web 应用中的典型用法。
-- [ ] **项目收尾**：完善 API 文档、补充关键路径的单元测试、整理代码结构。
+- [ ] **接口性能基准测试**：使用 Apache Benchmark (`ab`) 或 `wrk` 对核心接口（会议室列表、创建预约）做压力测试，建立性能基线。
+- [ ] **慢 SQL 排查与索引优化**：使用 `EXPLAIN` 分析预约冲突检测 SQL 的执行计划，为时间范围查询、会议室 ID + 时间段组合查询添加合适的索引。
+- [ ] **预约冲突检测的并发安全 (Optional)**：分析高并发下预约冲突检测的竞态条件（Race Condition），尝试使用数据库唯一约束 + 乐观锁或 Redis 分布式锁保障预约的原子性。
+- [ ] **通知模块 (Optional, 消息队列体验)**：引入 RabbitMQ，实现"预约成功后异步通知参会人"的解耦流程，体验消息队列在 Web 应用中的典型用法。
+- [ ] **项目收尾**：完善 API 文档（Knife4j/SpringDoc）、补充关键路径的单元测试（重点覆盖冲突检测逻辑）、整理代码结构。
 - [ ] **周末回顾总结**：走读全部代码，整理学习笔记，梳理从 Node.js 到 Java 的关键认知跃迁。
 
 ---
