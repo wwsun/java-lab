@@ -126,8 +126,8 @@
 - [x] **Spring Boot 接入 Redis**：引入 `spring-boot-starter-data-redis` 并配置连接参数，分别通过 `RedisTemplate` 和 `StringRedisTemplate` 操作不同数据结构。
 - [x] **缓存模式实践**：实现 Cache-Aside 模式（先查缓存，未命中再查 DB 并回填缓存）。
 - [x] **Spring Cache 注解**：使用 `@Cacheable`, `@CacheEvict`, `@CachePut` 简化缓存逻辑。
-- [ ] **缓存常见问题认知**：理解缓存穿透、击穿、雪崩的概念及基础规避思路（空值缓存、随机过期时间）。
-- [ ] **API 文档集成**：集成 Knife4j 或 SpringDoc（Swagger UI）生成在线 API 文档，让前后端协作更高效。
+- [x] **缓存常见问题认知**：理解缓存穿透、击穿、雪崩的概念及基础规避思路（空值缓存、随机过期时间）。
+- [x] **API 文档集成**：集成 Knife4j 或 SpringDoc（Swagger UI）生成在线 API 文档，让前后端协作更高效。
 
 ### 日志、监控与工程规范（Day 5-周末）
 
