@@ -104,9 +104,9 @@
 - [Baeldung: Spring Boot 专栏](https://www.baeldung.com/spring-boot)：比官方文档更平易近人的 Spring 生态最佳实践大全，手把手教你集成一切。
 - [MyBatis-Plus 官方指南](https://baomidou.com/)：国内企业极其青睐的 ORM 增强框架，全中文且示例极多，能极大提高开发速度。
 
-## 第三周：Web 应用进阶——安全、缓存与工程规范
+## 第三周：Web 应用进阶——安全、缓存、工程规范、部署与脚手架
 
-目标是掌握典型 Java Web 应用的核心横切关注点：安全认证、缓存加速、API 文档、日志监控，这些是从"能跑"到"能上线"的关键一步。
+目标是掌握典型 Java Web 应用的核心横切关注点：安全认证、缓存加速、API 文档、日志监控、容器化部署与工程脚手架沉淀。这些是从"能跑"到"能上线"，再到"可复用"的关键一步。
 
 ### 安全认证与 Web 安全防范（Day 1-2）
 
@@ -129,7 +129,7 @@
 - [x] **缓存常见问题认知**：理解缓存穿透、击穿、雪崩的概念及基础规避思路（空值缓存、随机过期时间）。
 - [x] **API 文档集成**：集成 Knife4j 或 SpringDoc（Swagger UI）生成在线 API 文档，让前后端协作更高效。
 
-### 日志、监控与工程规范（Day 5-周末）
+### 日志、监控与工程规范（Day 5）
 
 - [x] **阿里巴巴 Java 开发规约 (P3C)**：阅读并掌握国内 Java 工业界事实标准，建立生产级 Java 代码的心智模型。 [40-alibaba-p3c-coding-guidelines.md](./guide/40-alibaba-p3c-coding-guidelines.md)
 - [x] **日志体系配置**：配置 SLF4J + Logback，掌握日志分级（DEBUG/INFO/WARN/ERROR）和文件滚动策略。 [49-logging-slf4j-logback.md](./guide/49-logging-slf4j-logback.md)
@@ -137,25 +137,21 @@
 - [x] **接口幂等性方案**：理解并实现 Token 令牌机制，确保关键接口的幂等性。 [51-idempotency-token-pattern.md](./guide/51-idempotency-token-pattern.md)
 - [x] **🤖 AI 协同安全审计**：让 Agent 对你的认证鉴权代码做一次完整的安全审查，识别 JWT 密钥管理、Token 过期策略等常见安全漏洞。 [52-security-audit-report.md](./guide/52-security-audit-report.md)
 
----
+### Docker 容器化、Nginx 与部署（周末进阶专题）
 
-**📚 第三周推荐资料**
+- [ ] **编写 Dockerfile**：将 Spring Boot 应用打包为 Docker 镜像，理解多阶段构建（Multi-stage Build）的优化思路。 [53-docker-containerization-basics.md](./guide/53-docker-containerization-basics.md)
+- [ ] **Docker Compose 编排**：编排应用 + MySQL + Redis + Nginx 四件套的本地开发/部署环境，一键启动。 [41-docker-compose-essentials.md](./guide/41-docker-compose-essentials.md)
+- [ ] **多环境配置管理**：配置 `application-dev.yml` / `application-prod.yml`，理解 Spring Profiles 机制。 [54-spring-profiles-multi-env.md](./guide/54-spring-profiles-multi-env.md)
+- [ ] **Nginx 反向代理配置**：配置反向代理将请求转发到 Spring Boot 应用。理解 Nginx 在前后端分离架构中的角色——静态资源托管 + API 反向代理 + 负载均衡。 [55-nginx-reverse-proxy-guide.md](./guide/55-nginx-reverse-proxy-guide.md)
+- [ ] **SSH 远程部署基础**：练习通过 SSH 连接远程服务器，完成 Docker 环境安装、镜像拉取和容器启动的基本操作流程。 [56-ssh-remote-deployment-basics.md](./guide/56-ssh-remote-deployment-basics.md)
+- [ ] **🤖 AI 生成 CI/CD 配置**：让 Agent 分别生成 GitHub Actions 和 GitLab CI（`.gitlab-ci.yml`）的工作流配置，实现自动化构建、镜像推送和远程部署。 [57-ci-cd-basics-for-java-web.md](./guide/57-ci-cd-basics-for-java-web.md)
 
-- [Baeldung: Spring Security 系列](https://www.baeldung.com/security-spring)：最全面的 Spring Security 教程合集，覆盖 JWT、OAuth2、RBAC 等主流方案。
-- [Spring Data Redis 官方文档](https://docs.spring.io/spring-data/redis/reference/)：Redis 集成的权威参考指南。
-- [Knife4j 官方文档](https://doc.xiaominfo.com/)：国内最流行的 Swagger 增强 UI，中文文档齐全。
-
-## 第四周：综合实战——会议室预约系统与部署
-
-最终目标是完成一个完整的前后端分离项目（会议室预约系统），体验从需求分析、数据建模到容器化部署的全流程，证明你已具备独立开发 Java Web 应用的能力。
-
-> [!note] 题目来源
-> 本周实战项目来源于 [题目描述](../minus1.nie.netease.com/fullstack_example/sunweiwei01-H26866/题目描述.md)，是一个在线会议室预约平台，解决线下会议室预约混乱、冲突频发的痛点。
-
-### 前置准备：通用全栈工程脚手架（独立仓库）
+### 通用全栈工程脚手架（阶段成果）
 
 > [!important] 独立仓库
 > 该脚手架是一个**独立的通用模板仓库**，不绑定会议室预约系统等具体业务。目标是沉淀一套可复用的前后端分离 Web 工程基线，后续项目通过 fork / clone 快速启动。
+>
+> 当前已准备好的脚手架仓库：[`../java-web-starter/README.md`](../java-web-starter/README.md)
 
 目录结构：
 
@@ -167,48 +163,65 @@
 
 #### 后端脚手架 (backend/)
 
-- [ ] **Spring Boot 基础骨架**：初始化 Spring Boot 3.2 + JDK 17 + Maven 项目，配置 `.sdkmanrc`。
-- [ ] **数据层**：集成 MyBatis-Plus + MySQL 8.4 驱动 + HikariCP 连接池，预置 `application-dev.yml` / `application-prod.yml` 多环境配置。
-- [ ] **统一响应与异常处理**：封装 `Result<T>` 统一返回结构 + `@ControllerAdvice` 全局异常处理器 + 业务异常基类。
-- [ ] **参数校验**：集成 `spring-boot-starter-validation`，预置常用校验注解示例。
-- [ ] **安全认证**：集成 Spring Security + JWT，预置登录/注册/Token 刷新的完整认证流程骨架，包含 CORS 跨域配置。
-- [ ] **Redis 集成**：集成 `spring-boot-starter-data-redis`，配置 JSON 序列化，预置 Spring Cache 注解示例。
-- [ ] **API 文档**：集成 Knife4j（SpringDoc），自动生成在线 API 文档。
-- [ ] **日志配置**：配置 SLF4J + Logback，预置日志分级和文件滚动策略。
-- [ ] **代码规范**：Lombok 全局启用，代码遵循 P3C 规约，预置 `.editorconfig`。
+- [x] **Spring Boot 基础骨架**：初始化 Spring Boot 3.2 + JDK 17 + Maven 项目，配置 `.sdkmanrc`。
+- [x] **数据层**：集成 MyBatis-Plus + MySQL 8.4 驱动 + HikariCP 连接池，预置 `application-dev.yml` / `application-prod.yml` 多环境配置。
+- [x] **统一响应与异常处理**：封装 `Result<T>` 统一返回结构 + `@ControllerAdvice` 全局异常处理器 + 业务异常基类。
+- [x] **参数校验**：集成 `spring-boot-starter-validation`，预置常用校验注解示例。
+- [x] **安全认证**：集成 Spring Security + JWT，预置登录/注册/Token 刷新的完整认证流程骨架，包含 CORS 跨域配置。
+- [x] **Redis 集成**：集成 `spring-boot-starter-data-redis`，配置 JSON 序列化，预置 Spring Cache 注解示例。
+- [x] **API 文档**：集成 Knife4j（SpringDoc），自动生成在线 API 文档。
+- [x] **日志配置**：配置 SLF4J + Logback，预置日志分级和文件滚动策略。
+- [x] **代码规范**：Lombok 全局启用，代码遵循 P3C 规约，预置 `.editorconfig`。
 
 #### 前端脚手架 (frontend/)
 
-- [ ] **Vite + React + TypeScript 基础骨架**：使用 `create-vite` 初始化项目。
-- [ ] **UI 组件库**：集成 shadcn/ui + tailwindcss。
-- [ ] **路由**：集成 React Router v6，预置登录页 / 主布局 / 404 页面路由骨架。
-- [ ] **HTTP 层**：封装 Axios 实例，统一处理请求/响应拦截（Token 注入、401 自动跳转登录、错误提示）。
-- [ ] **状态管理 (Optional)**：集成 Zustand，预置用户认证状态管理示例。
-- [ ] **Mock 数据 (Optional)**：集成 MSW（Mock Service Worker）支持前端独立开发调试。
+- [x] **Vite + React + TypeScript 基础骨架**：使用 `create-vite` 初始化项目。
+- [x] **UI 组件库**：集成 shadcn/ui + tailwindcss。
+- [x] **路由**：集成 React Router v6，预置登录页 / 主布局 / 404 页面路由骨架。
+- [x] **HTTP 层**：封装 Axios 实例，统一处理请求/响应拦截（Token 注入、401 自动跳转登录、错误提示）。
+- [x] **状态管理 (Optional)**：集成 Zustand，预置用户认证状态管理示例。
+- [x] **Mock 数据 (Optional)**：集成 MSW（Mock Service Worker）支持前端独立开发调试。
 
 #### 基础设施与部署
 
-- [ ] **docker-compose.yml**：编排 MySQL 8.4 + Redis 7 + Nginx 开发/部署环境，支持 `docker compose up -d` 一键启动。
-- [ ] **后端 Dockerfile**：多阶段构建（Maven build → JRE runtime），优化镜像体积。
-- [ ] **前端 Dockerfile**：多阶段构建（Node build → Nginx serve），产物直接托管在 Nginx 中。
-- [ ] **Nginx 配置**：预置反向代理规则——前端静态资源 + `/api/**` 转发到 Spring Boot 后端。
-- [ ] **数据库初始化**：`doc/sql/init.sql` 预置建库建表脚本模板，Docker Compose 启动时自动执行。
+- [x] **docker-compose.yml**：编排 MySQL 8.4 + Redis 7 + Nginx 开发/部署环境，支持 `docker compose up -d` 一键启动。
+- [x] **后端 Dockerfile**：多阶段构建（Maven build → JRE runtime），优化镜像体积。
+- [x] **前端 Dockerfile**：多阶段构建（Node build → Nginx serve），产物直接托管在 Nginx 中。
+- [x] **Nginx 配置**：预置反向代理规则——前端静态资源 + `/api/**` 转发到 Spring Boot 后端。
+- [x] **数据库初始化**：`doc/sql/init.sql` 预置建库建表脚本模板，Docker Compose 启动时自动执行。
 
 #### 文档 (doc/)
 
-- [ ] **README.md**：项目简介、技术栈、快速启动指南（含 Docker 和本地开发两种模式）。
-- [ ] **API 设计规范**：RESTful URL 命名、HTTP Method 语义、状态码使用、统一响应格式等约定。
-- [ ] **开发规范**：Git 分支策略、提交信息规范、代码审查 checklist。
-- [ ] **部署指南**：Docker Compose 部署流程、环境变量配置说明、CI/CD 接入指引。
+- [x] **README.md**：项目简介、技术栈、快速启动指南（含 Docker 和本地开发两种模式）。
+- [x] **API 设计规范**：RESTful URL 命名、HTTP Method 语义、状态码使用、统一响应格式等约定。
+- [x] **开发规范**：Git 分支策略、提交信息规范、代码审查 checklist。
+- [x] **部署指南**：Docker Compose 部署流程、环境变量配置说明、CI/CD 接入指引。
 
 #### AI 辅助开发配置
 
-- [ ] **AGENTS.md**：配置 AI Agent 行为指令，包含技术栈约束、代码规范、生成模板要求。
-- [ ] **CLAUDE.md**：配置 Claude Code 项目上下文，确保 AI 生成代码符合脚手架规范。
+- [x] **AGENTS.md**：配置 AI Agent 行为指令，包含技术栈约束、代码规范、生成模板要求。
+- [x] **CLAUDE.md**：配置 Claude Code 项目上下文，确保 AI 生成代码符合脚手架规范。
 
 ---
 
-### 会议室预约系统开发（Day 1-3）
+**📚 第三周推荐资料**
+
+- [Baeldung: Spring Security 系列](https://www.baeldung.com/security-spring)：最全面的 Spring Security 教程合集，覆盖 JWT、OAuth2、RBAC 等主流方案。
+- [Spring Data Redis 官方文档](https://docs.spring.io/spring-data/redis/reference/)：Redis 集成的权威参考指南。
+- [Knife4j 官方文档](https://doc.xiaominfo.com/)：国内最流行的 Swagger 增强 UI，中文文档齐全。
+- [Docker Docs](https://docs.docker.com/)：Dockerfile、Compose、镜像构建与容器运行的官方参考。
+- [Nginx 官方文档](https://nginx.org/en/docs/)：反向代理、静态资源托管与负载均衡配置参考。
+
+## 第四周：综合实战——会议室预约系统
+
+最终目标是完成一个完整的前后端分离项目（会议室预约系统），体验从需求分析、数据建模到核心业务实现与测试收尾的全流程，证明你已具备独立开发 Java Web 应用的能力。
+
+> [!note] 题目来源
+> 本周实战项目来源于 [题目描述](../minus1.nie.netease.com/fullstack_example/sunweiwei01-H26866/题目描述.md)，是一个在线会议室预约平台，解决线下会议室预约混乱、冲突频发的痛点。
+>
+> 默认基于第三周已经完成的通用脚手架仓库 [`../java-web-starter/README.md`](../java-web-starter/README.md) 开展业务定制。
+
+### 会议室预约系统开发（Day 1-5）
 
 > [!info] 实战项目：会议室预约系统 (meetingroom)
 > 公司多间会议室靠即时通讯"喊话占位"，经常出现预约冲突、一人占多室、空闲时段不透明等问题。本项目核心目标是实现**会议室浏览 + 空闲时段查询 + 在线预约（含冲突检测）**的完整闭环。
@@ -224,7 +237,7 @@
 
 #### 基于通用脚手架定制
 
-- [ ] **Fork 通用脚手架**：从通用脚手架仓库 fork/clone，重命名为 `meetingroom` 项目。
+- [ ] **Fork 通用脚手架**：从已准备好的通用脚手架仓库 [`../java-web-starter/README.md`](../java-web-starter/README.md) fork/clone，重命名为 `meetingroom` 项目。
 - [ ] **🤖 AI 生成业务骨架**：让 Agent 基于数据模型生成完整的 Entity + Mapper + Service + Controller 层骨架代码，融入脚手架已有的统一响应、异常处理、认证鉴权等基础设施。
 
 #### 核心业务实现
@@ -237,15 +250,6 @@
   - 创建预约接口：填写会议主题 + 时间段，执行双重冲突校验（会议室时段冲突 + 用户时段冲突）+ 业务规则校验（时长上限、不可预约过去时间）
   - 我的预约列表接口：支持按会议室、日期范围筛选，支持分页
 - [ ] **认证鉴权集成**：集成第三周的 JWT + Spring Security 实现用户注册、登录、权限拦截。
-
-### Docker 容器化、Nginx 与部署（Day 4-5）
-
-- [ ] **编写 Dockerfile**：将 Spring Boot 应用打包为 Docker 镜像，理解多阶段构建（Multi-stage Build）的优化思路。
-- [ ] **Docker Compose 编排**：编排应用 + MySQL + Redis + Nginx 四件套的本地开发/部署环境，一键启动。
-- [ ] **多环境配置管理**：配置 `application-dev.yml` / `application-prod.yml`，理解 Spring Profiles 机制。
-- [ ] **Nginx 反向代理配置**：配置反向代理将请求转发到 Spring Boot 应用。理解 Nginx 在前后端分离架构中的角色——静态资源托管 + API 反向代理 + 负载均衡。
-- [ ] **SSH 远程部署基础**：练习通过 SSH 连接远程服务器，完成 Docker 环境安装、镜像拉取和容器启动的基本操作流程。
-- [ ] **🤖 AI 生成 CI/CD 配置**：让 Agent 分别生成 GitHub Actions 和 GitLab CI（`.gitlab-ci.yml`）的工作流配置，实现自动化构建、镜像推送和远程部署。
 
 ### 性能优化、测试与收尾（周末）
 

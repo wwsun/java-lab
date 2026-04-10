@@ -1,137 +1,424 @@
-# Docker Compose 核心指南：本地环境的"指挥官"
+# Docker Compose 核心指南：本地环境的“编排器”
 
-在 Java 后端开发中，我们很少在物理机上安装 MySQL 或 Redis，而是通过 Docker Compose 快速拉起一套隔离的中间件环境。
+这份文档聚焦一个目标：
 
-## 1. 为什么需要它？
+> 让你搞清楚 `docker compose` 到底在帮 Java Web 项目做什么，以及为什么它特别适合本地开发阶段管理 MySQL、Redis、Nginx 这类基础设施。
 
-- **环境一致性**：你的同事只需要执行一行命令，就能拥有和你一模一样的 DB 版本和配置。
-- **一键编排**：自动处理容器间的依赖关系（比如先启动 DB，再启动应用）。
-- **网络隔离**：Compose 会创建一个默认网络，容器间可以通过 `服务名`（如 `host: mysql`）直接通讯，不需要通过本地 IP。
+如果你有 Node.js/TypeScript 背景，可以先这样类比：
 
-## 2. 核心指令速查表
+| Node.js / TS 世界 | Docker Compose 世界 | 你应该怎么理解 |
+| --- | --- | --- |
+| `npm run dev` 只启动一个服务 | `docker run` | 适合单服务验证 |
+| `pm2 ecosystem.config.js` | `docker compose.yml` | 多服务运行清单 |
+| 一套 shell 脚本同时拉起 DB/Redis/app | `docker compose up -d` | 一条命令编排整套环境 |
+| `localhost:3306` 连接本机 MySQL | `localhost:3306` 连接宿主机映射端口 | 只适用于宿主机访问 |
+| 进程间用服务发现互联 | Compose 服务名互联 | 容器间直接用 `mysql:3306` |
 
-| 指令                               | 描述                     | Node.js 对标                     |
-| :--------------------------------- | :----------------------- | :------------------------------- |
-| `docker-compose up -d`             | 创建并拉起所有定义的服务 | `pm2 start ecosystem.config.js`  |
-| `docker-compose down`              | 停止并移除容器、网络     | `pm2 stop all && pm2 delete all` |
-| `docker-compose logs -f [service]` | 实时查看日志             | `pm2 logs`                       |
-| `docker-compose restart [service]` | 重启指定服务             | `pm2 restart [id]`               |
-| `docker-compose exec [service] sh` | 进入容器内部执行命令     | `ssh` 进入服务器                 |
+## 一、为什么需要 Docker Compose
 
-## 3. 在 java-labs 中的实践：详解配置字段
+在 Java Web 项目里，你通常不会只有一个进程：
 
-让我们以项目中的 `docker-compose.yml` 为例，拆解其核心字段的含义：
+- Spring Boot 应用
+- MySQL
+- Redis
+- Nginx
+- 前端静态资源服务
 
-### MySQL 服务配置
+如果每个服务都手动用一条 `docker run` 启动，会很快遇到这些问题：
+
+- 启动顺序难记
+- 端口映射容易冲突
+- 网络互联配置分散
+- 环境变量和数据卷零散难维护
+
+Docker Compose 的价值，就是把“整套系统怎么启动”写成一个声明式清单。
+
+## 二、核心心智映射
+
+请先记住这 4 个概念：
+
+### 1. `docker-compose.yml`
+
+它是**系统级启动清单**。
+
+不是单个服务的构建脚本，而是“这一套系统里有哪些服务、它们怎么连、端口怎么映射、数据怎么持久化”的统一定义。
+
+### 2. `docker compose up -d`
+
+它不是“只启动容器”。
+
+它更准确的意思是：
+
+1. 读取 Compose 配置
+2. 准备镜像
+3. 创建网络
+4. 创建并启动容器
+5. 后台运行
+
+### 3. 服务名就是容器间主机名
+
+在 Compose 网络里：
+
+- `mysql` 就是 MySQL 服务主机名
+- `redis` 就是 Redis 服务主机名
+
+所以容器之间互联时，用的是：
+
+- `mysql:3306`
+- `redis:6379`
+
+而不是 `localhost`
+
+### 4. Compose 特别适合“基础设施进容器，业务代码留在 IDE”
+
+本地开发阶段的黄金模式通常是：
+
+- MySQL / Redis / Nginx 放进 Docker
+- Java 业务代码继续在 IDEA 中运行和断点调试
+
+这正是你当前项目采用的模式。
+
+## 三、当前项目里的真实配置
+
+参考 [`../docker-compose.yml`](../docker-compose.yml)：
 
 ```yaml
-mysql:
-  image: mysql:8.0 # 使用镜像版本，对标 package.json 中的依赖版本
-  container_name: ja-mysql # 容器名，这对你在终端执行 `docker exec -it` 非常重要
-  environment: # 环境变量：定义数据库启动时的初始配置
-    MYSQL_ROOT_PASSWORD: root # 设置 root 密码
-    MYSQL_DATABASE: java_labs # 启动时自动创建一个名为 java_labs 的数据库
-  ports: # 核心！端口映射 [宿主机端口:容器内端口]
-    - '3306:3306' # 这里的 3306 让你的 IDEA 代码可以连接 localhost:3306
-  volumes: # 数据持久化，将宿主机目录挂载到容器内部
-    - ./mysql_data:/var/lib/mysql
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: java-labs-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: java_labs
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:7-alpine
+    container_name: java-labs-redis
+    restart: always
+    ports:
+      - "6379:6379"
 ```
 
-### Redis 服务配置
+这个文件目前只编排了两个中间件：
+
+- MySQL
+- Redis
+
+这说明当前仓库的本地开发策略是：
+
+- 基础设施用 Compose 起
+- Java 应用直接在 IDEA 里跑
+
+这是一种很典型、也很高效的开发模式。
+
+## 四、关键字段逐个理解
+
+### 1. `services`
+
+定义整套系统里的服务列表。
 
 ```yaml
-redis:
-  image: redis:7-alpine # 'alpine' 是极简版 Linux，镜像体积非常小
-  container_name: ja-redis
-  restart: always # 意外关机后自动重启
-  ports:
-    - '6379:6379' # 让你的 RedisTemplate 可以连接 localhost:6379
-  volumes:
-    - ./redis_data:/data # 保证你 Redis 里的数据在重启后不会丢失
+services:
+  mysql:
+  redis:
 ```
 
-### 关键字段深度剖析 (Node.js 视角)
+这里的 `mysql` 和 `redis` 不只是配置块名字，它们在 Compose 网络里还会成为服务主机名。
 
-1.  **`image` (镜像)**:
-    - _类比_：`node:18`。镜像包含了 OS + 运行环境 + 软件本身。
-2.  **`ports` (端口映射)**:
-    - _理解_：容器是一个"封闭的小盒子"。如果不做 `ports` 映射，宿主机（你的 macOS）是看不到 3306 或 6379 端口的。
-    - _左侧_ 是你从外部（IDEA、TablePlus、RedisInsight）访问的端口。
-    - _右侧_ 是容器内服务监听的端口。
-3.  **`volumes` (数据卷)**:
-    - _痛点_：默认情况下，容器一旦销毁，里面的数据也随之烟消云散。
-    - _解决_：我们将宿主机的 `./mysql_data` 与容器内的 `/var/lib/mysql` "绑定"。这样 MySQL 写入磁盘的所有数据实际上都存到了你的电脑硬盘上。
-4.  **`networks` (网络)**:
-    - _进阶_：多个容器会自动加入同一个。在同一个网络下，Java 应用可以通过 `mysql:3306` 直接访问服务，而不仅仅是 `localhost`。
+### 2. `image`
 
----
+表示直接使用某个现成镜像。
 
-## 4. 核心认知：Docker Compose 与 IDEA 调试的关系
-
-这是初学者最容易产生疑惑的地方。为什么不把 Java 应用也塞进 Docker？为什么要在外面用 IDEA 跑？
-
-### 架构示意图
-
-```mermaid
-graph LR
-    subgraph "宿主机 (你的 macOS)"
-        subgraph "IntelliJ IDEA (业务逻辑)"
-            App["Java 应用代码"]
-        end
-
-        PortL["本地端口 (Localhost)"]
-
-        App -- "读取 application.yml" --> PortL
-    end
-
-    subgraph "Docker 虚拟网络 (基础设施)"
-        Redis["Redis 容器"]
-        MySQL["MySQL 容器"]
-
-        PortL -- "端口映射 (Port Forwarding)" --> Redis
-        PortL -- "端口映射 (Port Forwarding)" --> MySQL
-    end
+```yaml
+image: mysql:8.0
 ```
 
-### 协作原理：
+意思是：
 
-1. **基础设施托管 (Docker Compose)**：
-   我们通过 `docker compose up -d` 启动 Redis。Docker 会在你的 macOS 上"占住" `6379` 端口，并将发往这个端口的所有流量转发给容器内的 Redis 进程。
-2. **业务代码运行 (IDEA)**：
-   你在 IDEA 里点运行。Java 代码读取 `application.yml` 发现 Redis 地址是 `localhost:6379`。于是它向自己电脑的 6379 端口发请求。
-3. **成功对接**：
-   Java 应用以为自己在访问本地软件，实际上流量通过 Docker 的**端口映射层**精准地命中了容器内的服务。
+- 不从本地源码构建
+- 直接拉官方镜像
 
-### 这种模式的 3 大优势：
+这很适合数据库、缓存这类标准中间件。
 
-1. **零重启断点调试**：你可以在 IDEA 里给 Java 代码打断点，程序会瞬间停住。如果 Java 也在 Docker 里，调试配置会极其复杂且缓慢。
-2. **热加载 (Hot Swap)**：你修改了一个 Java 方法的逻辑，IDEA 几秒内就能同步到正在运行的应用中。而在 Docker 里，你得重新构建镜像（可能需要几分钟）。
-3. **环境一次性预置**：你不再需要手动在 Mac 上安装各种数据库。只需要一份 `docker-compose.yml`，你的电脑就永远保持整洁，只有代码，没有"垃圾"。
+### 3. `container_name`
 
-> [!important]
-> **黄金法则**：
->
-> - **不变的/复杂的/标准的**（如 DB、Redis）放进 `docker compose`。
-> - **正在写的/经常改的/需要调的**（如 Java 业务代码）留在 `IDEA` 运行。
+显式指定容器名称。
 
-> [!important]
-> **数据持久化建议**：永远不要删除项目中的 `mysql_data` 或 `redis_data` 文件夹，除非你想重置数据库。
+```yaml
+container_name: java-labs-mysql
+```
 
-## AI 辅助开发实战建议 (AI-assisted Development Suggestions)
+这主要是为了命令行操作更直观，比如以后你执行：
 
-手动编写复杂的 Compose 文件容易出现缩进错误。
+```bash
+docker logs java-labs-mysql
+```
 
-> **最佳实践 Prompt**:
-> "我需要为一个 Spring Boot 项目增加一个『消息队列』环境。
->
-> 1. 请帮我在现有的 `docker-compose.yml` 中增加 `RabbitMQ` 服务，并开启管理后台（端口 15672）。
-> 2. 请设置数据持久化路径，确保队列消息在重启后依然存在。
-> 3. 请说明如何在 `application.yml` 中配置连接地址，利用 Compose 的服务名发现机制（如果 Java 应用也跑在 Docker 里的情况）。"
+### 4. `environment`
 
----
+注入容器运行时环境变量。
 
-## 2-3 条扩展阅读 (Extended Readings)
+```yaml
+environment:
+  MYSQL_ROOT_PASSWORD: root
+  MYSQL_DATABASE: java_labs
+```
 
-1. [Docker Compose Spec](https://docs.docker.com/compose/compose-file/) - 官方配置字典。
-2. [Play with Docker](https://training.play-with-docker.com/) - 在线练习 Docker 的沙盒环境。
-3. [Dzone: Docker for Java Developers](https://dzone.com/articles/using-docker-for-java-development) - 深度解析 Java 开发者为何离不开 Docker。
+对 MySQL 来说，这些变量决定了：
+
+- root 密码是什么
+- 第一次启动时自动创建哪个数据库
+
+### 5. `ports`
+
+这是最容易误解的字段。
+
+```yaml
+ports:
+  - "3306:3306"
+```
+
+含义是：
+
+- 左边 `3306`：宿主机端口
+- 右边 `3306`：容器内部端口
+
+也就是：
+
+- 你在 macOS 上访问 `localhost:3306`
+- Docker 转发到 MySQL 容器里的 `3306`
+
+### 6. `volumes`
+
+用于数据持久化。
+
+你当前仓库里已经预留了注释示例，但因为 Colima 下可能存在挂载权限问题，暂时没有启用：
+
+```yaml
+# volumes:
+#   - ./mysql_data:/var/lib/mysql
+```
+
+它的意义是：
+
+- 不把数据库数据只放在容器可写层
+- 而是同步到宿主机目录
+
+这样容器删掉后，数据仍可能保留。
+
+### 7. `networks`
+
+控制 Compose 里服务所在的网络。
+
+你当前项目里定义了：
+
+```yaml
+networks:
+  default:
+    name: java-labs-network
+```
+
+这样做的好处是：
+
+- 网络名称稳定
+- 多个 Compose 文件将来更容易共享网络
+
+## 五、`EXPOSE` 和 `ports` 不是一回事
+
+这个点一定要分清。
+
+`EXPOSE` 出现在 Dockerfile 里，作用更像“声明这个容器内部应用监听哪个端口”。
+
+`ports` 出现在 Compose 里，作用是“把宿主机端口映射到容器端口”。
+
+例如后端 Dockerfile 里可能有：
+
+```dockerfile
+EXPOSE 8080
+```
+
+这并不等于你的 macOS 已经能访问 `localhost:8080`。
+
+只有 Compose 里再写：
+
+```yaml
+ports:
+  - "8080:8080"
+```
+
+宿主机访问才真正打通。
+
+一句话记忆：
+
+- `EXPOSE` = 容器内部声明
+- `ports` = 宿主机访问入口
+
+## 六、`localhost` 和服务名的区别
+
+这是 Docker 初学者最容易踩坑的点。
+
+### 宿主机访问容器
+
+如果你在 macOS 上访问 MySQL：
+
+```text
+localhost:3306
+```
+
+这是因为 Compose 用 `ports` 把容器端口映射到了宿主机。
+
+### 容器访问自己
+
+如果一个容器访问 `localhost`，它访问的是**自己这个容器**。
+
+不是宿主机，也不是别的容器。
+
+### 容器访问同网络下其他容器
+
+如果 backend 和 mysql 都跑在 Compose 里，那么 backend 应该这样连数据库：
+
+```text
+mysql:3306
+```
+
+而不是：
+
+```text
+localhost:3306
+```
+
+记住这三个场景：
+
+1. 宿主机访问容器：`localhost:端口`
+2. 容器访问自己：`localhost:端口`
+3. 容器访问同网络其他容器：`服务名:端口`
+
+## 七、`up`、`start`、`stop`、`down` 的区别
+
+这个也是 Compose 操作里最重要的基础。
+
+| 命令 | 会创建容器 | 会启动容器 | 会删除容器 | 典型场景 |
+| --- | --- | --- | --- | --- |
+| `docker compose up -d` | 会 | 会 | 不会 | 第一次启动、配置变更后重建环境 |
+| `docker compose start` | 不会 | 会 | 不会 | 已有容器，只想重新开机 |
+| `docker compose stop` | 不会 | 会停止 | 不会 | 临时停服务，之后还要继续用 |
+| `docker compose down` | 不会 | 会停止 | 会 | 彻底收掉这套环境 |
+
+一句话记忆：
+
+- `stop/start` 是“关机/开机”
+- `down/up` 是“拆掉/重建”
+
+## 八、为什么本地开发通常只把中间件放进 Compose
+
+很多初学者会问：
+
+> 为什么不把 Java 应用也一起放进 Docker，本地岂不是更统一？
+
+答案是：本地开发阶段，调试效率更重要。
+
+如果 Java 代码继续在 IDEA 中运行，你会得到这些收益：
+
+1. 断点调试更直接
+2. 热更新更快
+3. 不用每次改代码都重建镜像
+
+所以本地开发阶段常见的最佳实践是：
+
+- Docker Compose 托管 MySQL / Redis / Nginx
+- Java 应用留在 IDEA 里跑
+
+而到了部署阶段，再把应用本身也镜像化。
+
+## 九、在本项目中的推荐工作流
+
+结合 [`../README.md`](../README.md) 和当前仓库配置，推荐流程如下：
+
+### 1. 启动 Docker Runtime
+
+macOS 下使用 Colima：
+
+```bash
+colima start
+```
+
+### 2. 启动中间件
+
+```bash
+docker compose up -d
+```
+
+### 3. 在 IDEA 中启动 Spring Boot
+
+此时你的 Java 应用可以连接：
+
+- MySQL：`localhost:3306`
+- Redis：`localhost:6379`
+
+### 4. 查看运行状态
+
+```bash
+docker compose ps
+```
+
+### 5. 结束开发后收环境
+
+如果只是临时停机：
+
+```bash
+docker compose stop
+```
+
+如果想连容器和网络一起清掉：
+
+```bash
+docker compose down
+```
+
+## 十、常见反模式
+
+- 把 `localhost` 当成“别的容器”地址使用。
+- 以为 Dockerfile 里的 `EXPOSE` 就等于宿主机已开放端口。
+- 每次只是临时停服务却直接 `down`，结果下次又得重新 `up`。
+- 本地开发时把 Java 业务代码也强行塞进容器，导致调试体验极差。
+- 在 Colima 挂载存在权限问题时直接照搬 Linux 下的数据卷方案，结果 MySQL 启动失败。
+
+## 十一、AI 辅助开发实战建议
+
+你可以直接这样给 Agent 下指令：
+
+> 请帮我审查当前 `docker-compose.yml`，重点检查：
+> 1. `ports` 是否合理；
+> 2. 是否需要 `volumes`；
+> 3. 服务名是否适合容器间访问；
+> 4. 是否适合 macOS + Colima 本地开发。
+
+或者：
+
+> 请在现有 `docker-compose.yml` 中新增 `backend`、`frontend`、`nginx` 服务，要求：
+> 1. 使用相对路径 build；
+> 2. 为后端注入数据库和 Redis 连接信息；
+> 3. 为前端保留独立构建阶段；
+> 4. 输出完整的服务互联说明。
+
+## 十二、配套代码示例解读
+
+建议按下面顺序结合项目代码阅读：
+
+1. [`../docker-compose.yml`](../docker-compose.yml)
+   理解中间件编排、端口映射和网络。
+2. [`53-docker-containerization-basics.md`](./53-docker-containerization-basics.md)
+   理解 Dockerfile、镜像、容器和 Compose 的关系。
+3. [`../java-web-starter/backend/Dockerfile`](../java-web-starter/backend/Dockerfile)
+   看后端镜像如何构建。
+4. [`../java-web-starter/nginx/default.conf`](../java-web-starter/nginx/default.conf)
+   看 Nginx 如何充当前后端统一入口。
+
+## 十三、扩展阅读
+
+1. [`53-docker-containerization-basics.md`](./53-docker-containerization-basics.md)
+2. [`../README.md`](../README.md)
+3. [`36-packaging-and-running-guide.md`](./36-packaging-and-running-guide.md)
