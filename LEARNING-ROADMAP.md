@@ -15,40 +15,40 @@
 
 ### 语法与生态映射（Day 1-2）
 
-- [x] **Java 101 入门**：阅读 [00-java-basic.md](./guide/00-java-basic.md) 快速建立 Java 心智模型。
-- [x] **开发工具配置**：下载安装 IntelliJ IDEA，放弃轻型编辑器。 [07-intellij-productivity-tips.md](./guide/07-intellij-productivity-tips.md)
+- [x] **Java 101 入门**：阅读 [01-java-101.md](./guide/01-java-foundation/01-java-101.md) 快速建立 Java 心智模型。
+- [x] **开发工具配置**：下载安装 IntelliJ IDEA，放弃轻型编辑器。 [02-intellij-productivity.md](./guide/01-java-foundation/02-intellij-productivity.md)
 - [x] 安装 jdk17
 - [x] 安装 maven
-- [x] **Maven 基础构建**：配置 Maven（对标 npm/pnpm），理解 `pom.xml` 核心结构（类比 `package.json`）。 [01-maven-vs-npm-guide.md](./guide/01-maven-vs-npm-guide.md)
-- [x] **Maven 指令实操**：在终端运行并掌握 `mvn clean install` 等高频指令。 [02-maven-essentials.md](./guide/02-maven-essentials.md)
-- [x] **现代语法实操验证**：手写代码验证 JDK 17 核心特性（Records、`var` 关键字、Switch 表达式、多行文本块、密封类）。 [12-java-var-usage.md](./guide/12-java-var-usage.md)
-- [x] **代码质量与 Linting (Optional)**：了解集成 Checkstyle/Spotless 等 Java 工具。 [04-linting-and-quality.md](./guide/04-linting-and-quality.md)
-- [x] **🤖 AI 协同语法映射**：向 Claude 提问："把这段复杂的 Node.js `Array.reduce` 逻辑用 Java Stream API 重写"，观察并对比两者的语法惯用语（Idioms）差异。 [03-stream-api-mapping.md](./guide/03-stream-api-mapping.md)
-- [x] **IDEA 调试技巧 (Optional)**：练习设置基础断点、条件断点，并学会在 Debug 面板中使用 Evaluate Expression，这是 Java 开发的杀手锏。 [06-intellij-debugging-tips.md](./guide/06-intellij-debugging-tips.md)
+- [x] **Maven 基础构建**：配置 Maven（对标 npm/pnpm），理解 `pom.xml` 核心结构（类比 `package.json`）。 [03-maven-vs-npm.md](./guide/01-java-foundation/03-maven-vs-npm.md)
+- [x] **Maven 指令实操**：在终端运行并掌握 `mvn clean install` 等高频指令。 [04-maven-essentials.md](./guide/01-java-foundation/04-maven-essentials.md)
+- [x] **现代语法实操验证**：手写代码验证 JDK 17 核心特性（Records、`var` 关键字、Switch 表达式、多行文本块、密封类）。 [05-var-usage.md](./guide/01-java-foundation/05-var-usage.md)
+- [x] **代码质量与 Linting (Optional)**：了解集成 Checkstyle/Spotless 等 Java 工具。 [06-code-quality-and-linting.md](./guide/01-java-foundation/06-code-quality-and-linting.md)
+- [x] **🤖 AI 协同语法映射**：向 Claude 提问："把这段复杂的 Node.js `Array.reduce` 逻辑用 Java Stream API 重写"，观察并对比两者的语法惯用语（Idioms）差异。 [07-stream-api-mapping.md](./guide/01-java-foundation/07-stream-api-mapping.md)
+- [x] **IDEA 调试技巧 (Optional)**：练习设置基础断点、条件断点，并学会在 Debug 面板中使用 Evaluate Expression，这是 Java 开发的杀手锏。 [08-intellij-debugging.md](./guide/01-java-foundation/08-intellij-debugging.md)
 
 ### 进阶语法与集合框架（Day 3-4）
 
-- [x] **对象与泛型**：理解并写代码验证 Java 泛型的"类型擦除（Type Erasure）"机制。 [05-generics-and-erasure.md](./guide/05-generics-and-erasure.md)
-- [x] **集合实操**：编写测试代码，分别使用 `ArrayList`, `HashSet`, `HashMap` 进行增删改查，对齐 JS 内置数据结构。 [08-collections-mapping.md](./guide/08-collections-mapping.md)
-- [x] **Lambda 与 Stream**：在一组对象集合上，用 Stream API 实现类似 JS `map/filter/reduce` 的数据转换与过滤。 [14-java-lambda-essentials.md](./guide/14-java-lambda-essentials.md)
-- [x] **Stream 综合练习**：完成一个包含 `collect(Collectors.groupingBy())`、`flatMap`、`Optional` 组合使用的综合练习，确保 Stream API 熟练度。 [03-stream-api-mapping.md](./guide/03-stream-api-mapping.md)
-- [x] **异常处理体系**：理解 Checked vs Unchecked Exception 的设计哲学，编写自定义业务异常类。 [10-exception-handling.md](./guide/10-exception-handling.md)
-- [x] **Java 时间 API**：掌握 `java.time.LocalDateTime`、`Instant`、`DateTimeFormatter` 等核心类的日常使用。 [11-java-time-api.md](./guide/11-java-time-api.md)
+- [x] **对象与泛型**：理解并写代码验证 Java 泛型的"类型擦除（Type Erasure）"机制。 [09-generics-and-erasure.md](./guide/01-java-foundation/09-generics-and-erasure.md)
+- [x] **集合实操**：编写测试代码，分别使用 `ArrayList`, `HashSet`, `HashMap` 进行增删改查，对齐 JS 内置数据结构。 [10-collections-mapping.md](./guide/01-java-foundation/10-collections-mapping.md)
+- [x] **Lambda 与 Stream**：在一组对象集合上，用 Stream API 实现类似 JS `map/filter/reduce` 的数据转换与过滤。 [11-lambda-essentials.md](./guide/01-java-foundation/11-lambda-essentials.md)
+- [x] **Stream 综合练习**：完成一个包含 `collect(Collectors.groupingBy())`、`flatMap`、`Optional` 组合使用的综合练习，确保 Stream API 熟练度。 [07-stream-api-mapping.md](./guide/01-java-foundation/07-stream-api-mapping.md)
+- [x] **异常处理体系**：理解 Checked vs Unchecked Exception 的设计哲学，编写自定义业务异常类。 [12-exception-handling.md](./guide/01-java-foundation/12-exception-handling.md)
+- [x] **Java 时间 API**：掌握 `java.time.LocalDateTime`、`Instant`、`DateTimeFormatter` 等核心类的日常使用。 [13-java-time-api.md](./guide/01-java-foundation/13-java-time-api.md)
 
 ### 并发概念速览与周末综合练习（Day 5-周末）
 
 > [!note] 并发学习策略
 > 在典型 Java Web 应用中，线程管理主要交给 Spring Boot 框架层（内嵌 Tomcat 线程池）处理。这里只需理解核心概念，不必深挖线程池参数调优。
 
-- [x] **并发基础认知**：理解 Java 多线程模型与 Node.js 单线程事件循环的本质差异。 [13-concurrency-models.md](./guide/13-concurrency-models.md)
-- [x] **基础线程**：手写 `Thread` 和 `Runnable` 范例，体验多线程的启动。 [15-runnable-vs-callable.md](./guide/15-runnable-vs-callable.md)
+- [x] **并发基础认知**：理解 Java 多线程模型与 Node.js 单线程事件循环的本质差异。 [14-concurrency-models.md](./guide/01-java-foundation/14-concurrency-models.md)
+- [x] **基础线程**：手写 `Thread` 和 `Runnable` 范例，体验多线程的启动。 [15-runnable-vs-callable.md](./guide/01-java-foundation/15-runnable-vs-callable.md)
 - [x] **复现并发冲突**：不用锁写一段多线程共享计数器代码，观察数据不一致现象。
 - [x] **加锁解决冲突**：分别使用 `synchronized` 关键字和 `ReentrantLock` 修复并发冲突。
 - [x] **线程池基础**：了解 `ExecutorService` 的基本用法，理解线程池相比手动创建线程的优势。
-- [x] **线程安全集合**：单独测试 `ConcurrentHashMap`，理解何为线程安全的集合操作。 [16-concurrent-hashmap-guide.md](./guide/16-concurrent-hashmap-guide.md)
-- [x] **线程池参数配置 (Optional)**：使用 `ThreadPoolExecutor` 创建自定义线程池，对比不同核心线程数、最大线程数及拒绝策略的表现。 [17-threadpool-tuning-guide.md](./guide/17-threadpool-tuning-guide.md)
-- [x] **JDK 21 虚拟线程体验 (Optional, 需要 JDK 21)**：用 `Thread.ofVirtual()` 和 `Executors.newVirtualThreadPerTaskExecutor()` 感受轻量级并发——底层自动非阻塞 I/O，代码却像同步般直白。类比 Node.js 事件循环的 M:N 映射思想。 [19-virtual-threads-intro.md](./guide/19-virtual-threads-intro.md)
-- [x] **多线程调试 (Optional)**：尝试在 IDEA 中将断点设置为 Thread 模式，观察并控制多线程的交替执行。 [18-multithreading-debugging.md](./guide/18-multithreading-debugging.md)
+- [x] **线程安全集合**：单独测试 `ConcurrentHashMap`，理解何为线程安全的集合操作。 [16-concurrent-hashmap.md](./guide/01-java-foundation/16-concurrent-hashmap.md)
+- [x] **线程池参数配置 (Optional)**：使用 `ThreadPoolExecutor` 创建自定义线程池，对比不同核心线程数、最大线程数及拒绝策略的表现。 [17-threadpool-tuning.md](./guide/01-java-foundation/17-threadpool-tuning.md)
+- [x] **JDK 21 虚拟线程体验 (Optional, 需要 JDK 21)**：用 `Thread.ofVirtual()` 和 `Executors.newVirtualThreadPerTaskExecutor()` 感受轻量级并发——底层自动非阻塞 I/O，代码却像同步般直白。类比 Node.js 事件循环的 M:N 映射思想。 [19-virtual-threads-intro.md](./guide/01-java-foundation/19-virtual-threads-intro.md)
+- [x] **多线程调试 (Optional)**：尝试在 IDEA 中将断点设置为 Thread 模式，观察并控制多线程的交替执行。 [18-multithreading-debugging.md](./guide/01-java-foundation/18-multithreading-debugging.md)
 - [x] **[第一周终极实战验收]：多线程文件内容扫描器 (CLI Tool)**
 
 ---
@@ -65,36 +65,36 @@
 
 ### Spring Boot 启蒙（Day 1-2）
 
-- [x] **脚手架生成**：使用 [Spring Initializr](https://start.spring.io/) 平台生成脚手架（选用 Java 17, Spring Boot 3.x, Maven, Spring Web）并导入 IDEA。
-- [x] **IoC 与 DI 验证**：写两组类验证有无 `@Autowired` 时的实例化过程及依赖关系的绑定。
-- [x] **RESTful API 全方法实操**：编写 `@RestController` 实现完整的 `GET`/`POST`/`PUT`/`DELETE` 接口，覆盖资源的增删改查。 <!-- @id: task-04-02 -->
-- [x] **RESTful 接口设计规范**：掌握 URL 命名规范（名词复数 `/api/users`、嵌套资源 `/api/users/{id}/tasks`）、HTTP Method 语义映射。 <!-- @id: task-04-03 -->
+- [x] **脚手架生成**：使用 [Spring Initializr](https://start.spring.io/) 平台生成脚手架（选用 Java 17, Spring Boot 3.x, Maven, Spring Web）并导入 IDEA。 [01-spring-boot-quickstart.md](./guide/02-spring-boot-and-persistence/01-spring-boot-quickstart.md)
+- [x] **IoC 与 DI 验证**：写两组类验证有无 `@Autowired` 时的实例化过程及依赖关系的绑定。 [02-ioc-and-di-experiment.md](./guide/02-spring-boot-and-persistence/02-ioc-and-di-experiment.md)
+- [x] **RESTful API 全方法实操**：编写 `@RestController` 实现完整的 `GET`/`POST`/`PUT`/`DELETE` 接口，覆盖资源的增删改查。 [03-restful-api-standards.md](./guide/02-spring-boot-and-persistence/03-restful-api-standards.md) <!-- @id: task-04-02 -->
+- [x] **RESTful 接口设计规范**：掌握 URL 命名规范（名词复数 `/api/users`、嵌套资源 `/api/users/{id}/tasks`）、HTTP Method 语义映射。 [03-restful-api-standards.md](./guide/02-spring-boot-and-persistence/03-restful-api-standards.md) <!-- @id: task-04-03 -->
 - [x] **HTTP 状态码规范**：在接口中正确使用 `ResponseEntity` 返回语义化状态码——`200 OK`、`201 Created`、`400 Bad Request`、`401 Unauthorized`、`403 Forbidden`、`404 Not Found`、`500 Internal Server Error`。 <!-- @id: task-04-04 -->
 - [x] **参数捕获能力测试**：编写验证代码成功通过 `@PathVariable`, `@RequestParam`, `@RequestBody` 获取前端传入的数据。 <!-- @id: task-04-05 -->
-- [x] **中间件机制理解**：掌握 Spring Boot 的 `Filter`（类比 Express middleware）和 `HandlerInterceptor`（类比 NestJS Guard/Interceptor）的执行顺序与应用场景，编写一个请求日志记录 Filter。 <!-- @id: task-04-06 -->
+- [x] **中间件机制理解**：掌握 Spring Boot 的 `Filter`（类比 Express middleware）和 `HandlerInterceptor`（类比 NestJS Guard/Interceptor）的执行顺序与应用场景，编写一个请求日志记录 Filter。 [04-spring-boot-middleware.md](./guide/02-spring-boot-and-persistence/04-spring-boot-middleware.md) <!-- @id: task-04-06 -->
 
 ### 数据库接入实战（Day 3-4）
 
 > [!info] ORM 选型建议
 > 国内环境中不需要死磕 JPA/Hibernate，直接学习 **MyBatis** 和 **MyBatis-Plus**。它类似于 Prisma 或 TypeORM，且在处理复杂 SQL 时更具灵活性。同时，MyBatis-Plus 通过内置方法帮你避免裸写 SQL，但遇到复杂场景时仍需理解 SQL 本身。
 
-- [x] **关系型数据库基础**：理解表、字段、主键（Primary Key）、外键（Foreign Key）的概念，编写一组带有关联关系的 DDL（如 `users` 表和 `tasks` 表的一对多关系）。
-- [x] **索引认知**：理解索引的本质（B+树）和使用时机——查询条件字段、关联字段（外键）、排序字段应加索引；低基数字段（如性别）不适合单独加索引。
-- [x] **依赖引入与配置**：引入 MyBatis-Plus 及 MySQL 驱动依赖。
-- [x] **连接池调优**：在配置文件中设置并熟悉 HikariCP 核心配置。
-- [x] **ORM 层搭建**：编写基于数据表的 Entity 实体类（Lombok 注解）及对应的 Mapper 接口。
-- [x] **CRUD 测试**：利用 MyBatis-Plus 内置的基础方法（`selectById`, `insert`, `updateById`, `deleteById`）体验增删改查。
-- [x] **N+1 查询问题**：理解 ORM 的 N+1 查询陷阱（类比 Prisma 的 `include` / TypeORM 的 `eager loading`）。在 MyBatis-Plus 中通过 `@Select` 联表查询或自定义 XML Mapper 中的 `<resultMap>` + `<association>` 解决。
+- [x] **关系型数据库基础**：理解表、字段、主键（Primary Key）、外键（Foreign Key）的概念，编写一组带有关联关系的 DDL（如 `users` 表和 `tasks` 表的一对多关系）。 [06-database-fundamentals.md](./guide/02-spring-boot-and-persistence/06-database-fundamentals.md)
+- [x] **索引认知**：理解索引的本质（B+树）和使用时机——查询条件字段、关联字段（外键）、排序字段应加索引；低基数字段（如性别）不适合单独加索引。 [07-index-fundamentals.md](./guide/02-spring-boot-and-persistence/07-index-fundamentals.md)
+- [x] **依赖引入与配置**：引入 MyBatis-Plus 及 MySQL 驱动依赖。 [09-why-mybatis-plus.md](./guide/02-spring-boot-and-persistence/09-why-mybatis-plus.md)
+- [x] **连接池调优**：在配置文件中设置并熟悉 HikariCP 核心配置。 [08-hikaricp-tuning.md](./guide/02-spring-boot-and-persistence/08-hikaricp-tuning.md)
+- [x] **ORM 层搭建**：编写基于数据表的 Entity 实体类（Lombok 注解）及对应的 Mapper 接口。 [10-mybatis-plus-crud.md](./guide/02-spring-boot-and-persistence/10-mybatis-plus-crud.md)
+- [x] **CRUD 测试**：利用 MyBatis-Plus 内置的基础方法（`selectById`, `insert`, `updateById`, `deleteById`）体验增删改查。 [11-employee-crud-lab.md](./guide/02-spring-boot-and-persistence/11-employee-crud-lab.md)
+- [x] **N+1 查询问题**：理解 ORM 的 N+1 查询陷阱（类比 Prisma 的 `include` / TypeORM 的 `eager loading`）。在 MyBatis-Plus 中通过 `@Select` 联表查询或自定义 XML Mapper 中的 `<resultMap>` + `<association>` 解决。 [12-n-plus-one-problem.md](./guide/02-spring-boot-and-persistence/12-n-plus-one-problem.md)
 - [x] **🤖 AI 骨架生成提效**：跳过手打模板，尝试对 AI 发送指令："基于这份 DDL SQL，生成自带 Lombok 注解的 MyBatis-Plus Entity 实体和与其配套的一组 standard CRUD Controller / Service"，并 Review 其生成的依赖路径是否符合你的层级结构。
 
 ### 实战整合与规范（Day 5-周末）
 
-- [x] **全局响应封装**：定义并使用规范化的统一 API 返回实体（`Result<T>`）。
-- [x] **全局异常处理**：编写 `@ControllerAdvice` 截获常见业务异常并格式化输出。
-- [x] **校验框架集成**：引入 `spring-boot-starter-validation` 处理接口入参校验。
-- [x] **单元测试入门**：引入 `spring-boot-starter-test`，写一个基于 JUnit 5 和 Mockito 的基础测试用例，掌握 AAA 模式（Arrange-Act-Assert）。
-- [x] **工程打包与运行**：在项目根目录运行 `mvn clean package` 体验 Fat JAR 的打包机制，并用 `java -jar` 命令将服务独立运行起来。
-- [x] **周末闭环实战**：写一个带有 JWT 鉴权的"书籍管理系统"，打通 Controller -> Service -> Mapper -> DB 的完整闭环。
+- [x] **全局响应封装**：定义并使用规范化的统一 API 返回实体（`Result<T>`）。 [14-validation-and-exception-handling.md](./guide/02-spring-boot-and-persistence/14-validation-and-exception-handling.md)
+- [x] **全局异常处理**：编写 `@ControllerAdvice` 截获常见业务异常并格式化输出。 [14-validation-and-exception-handling.md](./guide/02-spring-boot-and-persistence/14-validation-and-exception-handling.md)
+- [x] **校验框架集成**：引入 `spring-boot-starter-validation` 处理接口入参校验。 [14-validation-and-exception-handling.md](./guide/02-spring-boot-and-persistence/14-validation-and-exception-handling.md)
+- [x] **单元测试入门**：引入 `spring-boot-starter-test`，写一个基于 JUnit 5 和 Mockito 的基础测试用例，掌握 AAA 模式（Arrange-Act-Assert）。 [15-unit-testing-fundamentals.md](./guide/02-spring-boot-and-persistence/15-unit-testing-fundamentals.md)
+- [x] **工程打包与运行**：在项目根目录运行 `mvn clean package` 体验 Fat JAR 的打包机制，并用 `java -jar` 命令将服务独立运行起来。 [16-packaging-and-running.md](./guide/02-spring-boot-and-persistence/16-packaging-and-running.md)
+- [x] **周末闭环实战**：写一个带有 JWT 鉴权的"书籍管理系统"，打通 Controller -> Service -> Mapper -> DB 的完整闭环。 [01-book-management-system-lab.md](./guide/04-project-delivery/01-book-management-system-lab.md)
 
 ---
 
@@ -113,38 +113,38 @@
 > [!note] 认证方案
 > 采用 **Spring Security + JWT** 方案。Spring Security 是 Spring 生态的事实标准安全框架，虽然学习曲线稍陡，但掌握后能覆盖绝大多数 Web 应用的认证授权需求。类比 NestJS 中的 Guard + Passport 组合。
 
-- [x] **Spring Security 基础配置**：理解 Security Filter Chain 的工作原理，配置基础安全过滤器链。
-- [x] **JWT 完整实现**：实现令牌的生成、验证、续期全流程。
+- [x] **Spring Security 基础配置**：理解 Security Filter Chain 的工作原理，配置基础安全过滤器链。 [01-security-filter-chain.md](./guide/03-web-security-and-infra/01-security-filter-chain.md)
+- [x] **JWT 完整实现**：实现令牌的生成、验证、续期全流程。 [02-jwt-essentials.md](./guide/03-web-security-and-infra/02-jwt-essentials.md)
 - [x] **基于注解的权限控制**：使用 `@PreAuthorize` 实现接口级的角色权限控制。
-- [x] **CORS 跨域配置**：正确配置前后端分离架构下的跨域请求（类比 Express 中的 `cors` 中间件）。
-- [x] **常见 Web 安全风险防范**：了解并配置对以下攻击的防御措施——SQL 注入（MyBatis-Plus 参数化查询已默认防御）、XSS（输入过滤 + 输出转义）、CSRF（Spring Security 默认启用 CSRF Token）、接口限流防刷（结合 Redis 实现简单的滑动窗口限流）。
+- [x] **CORS 跨域配置**：正确配置前后端分离架构下的跨域请求（类比 Express 中的 `cors` 中间件）。 [03-cors-for-frontend.md](./guide/03-web-security-and-infra/03-cors-for-frontend.md)
+- [x] **常见 Web 安全风险防范**：了解并配置对以下攻击的防御措施——SQL 注入（MyBatis-Plus 参数化查询已默认防御）、XSS（输入过滤 + 输出转义）、CSRF（Spring Security 默认启用 CSRF Token）、接口限流防刷（结合 Redis 实现简单的滑动窗口限流）。 [04-web-security-essentials.md](./guide/03-web-security-and-infra/04-web-security-essentials.md)
 
 ### Redis 集成与 API 文档（Day 3-4）
 
-- [x] **Redis 概念与应用场景**：理解 Redis 作为内存数据库的核心定位，梳理典型应用场景——缓存加速、Session 存储、接口限流、排行榜、分布式锁。
+- [x] **Redis 概念与应用场景**：理解 Redis 作为内存数据库的核心定位，梳理典型应用场景——缓存加速、Session 存储、接口限流、排行榜、分布式锁。 [05-redis-integration-essentials.md](./guide/03-web-security-and-infra/05-redis-integration-essentials.md)
 - [x] **Redis 基础数据结构**：掌握五种核心数据结构的特点与适用场景——`String`（缓存/计数器）、`Hash`（对象字段存储）、`List`（消息队列/最新列表）、`Set`（去重/交集运算）、`Sorted Set`（排行榜/延迟队列）。
 - [x] **Spring Boot 接入 Redis**：引入 `spring-boot-starter-data-redis` 并配置连接参数，分别通过 `RedisTemplate` 和 `StringRedisTemplate` 操作不同数据结构。
-- [x] **缓存模式实践**：实现 Cache-Aside 模式（先查缓存，未命中再查 DB 并回填缓存）。
-- [x] **Spring Cache 注解**：使用 `@Cacheable`, `@CacheEvict`, `@CachePut` 简化缓存逻辑。
-- [x] **缓存常见问题认知**：理解缓存穿透、击穿、雪崩的概念及基础规避思路（空值缓存、随机过期时间）。
-- [x] **API 文档集成**：集成 Knife4j 或 SpringDoc（Swagger UI）生成在线 API 文档，让前后端协作更高效。
+- [x] **缓存模式实践**：实现 Cache-Aside 模式（先查缓存，未命中再查 DB 并回填缓存）。 [06-cache-aside-pattern.md](./guide/03-web-security-and-infra/06-cache-aside-pattern.md)
+- [x] **Spring Cache 注解**：使用 `@Cacheable`, `@CacheEvict`, `@CachePut` 简化缓存逻辑。 [07-spring-cache-and-redis.md](./guide/03-web-security-and-infra/07-spring-cache-and-redis.md)
+- [x] **缓存常见问题认知**：理解缓存穿透、击穿、雪崩的概念及基础规避思路（空值缓存、随机过期时间）。 [08-cache-problems-and-solutions.md](./guide/03-web-security-and-infra/08-cache-problems-and-solutions.md)
+- [x] **API 文档集成**：集成 Knife4j 或 SpringDoc（Swagger UI）生成在线 API 文档，让前后端协作更高效。 [09-api-documentation-knife4j.md](./guide/03-web-security-and-infra/09-api-documentation-knife4j.md)
 
 ### 日志、监控与工程规范（Day 5）
 
-- [x] **阿里巴巴 Java 开发规约 (P3C)**：阅读并掌握国内 Java 工业界事实标准，建立生产级 Java 代码的心智模型。 [40-alibaba-p3c-coding-guidelines.md](./guide/40-alibaba-p3c-coding-guidelines.md)
-- [x] **日志体系配置**：配置 SLF4J + Logback，掌握日志分级（DEBUG/INFO/WARN/ERROR）和文件滚动策略。 [49-logging-slf4j-logback.md](./guide/49-logging-slf4j-logback.md)
-- [x] **应用监控端点**：引入 Spring Boot Actuator，配置健康检查和应用信息端点。 [50-spring-boot-actuator.md](./guide/50-spring-boot-actuator.md)
-- [x] **接口幂等性方案**：理解并实现 Token 令牌机制，确保关键接口的幂等性。 [51-idempotency-token-pattern.md](./guide/51-idempotency-token-pattern.md)
-- [x] **🤖 AI 协同安全审计**：让 Agent 对你的认证鉴权代码做一次完整的安全审查，识别 JWT 密钥管理、Token 过期策略等常见安全漏洞。 [52-security-audit-report.md](./guide/52-security-audit-report.md)
+- [x] **阿里巴巴 Java 开发规约 (P3C)**：阅读并掌握国内 Java 工业界事实标准，建立生产级 Java 代码的心智模型。 [10-alibaba-p3c-guidelines.md](./guide/03-web-security-and-infra/10-alibaba-p3c-guidelines.md)
+- [x] **日志体系配置**：配置 SLF4J + Logback，掌握日志分级（DEBUG/INFO/WARN/ERROR）和文件滚动策略。 [11-logging-slf4j-logback.md](./guide/03-web-security-and-infra/11-logging-slf4j-logback.md)
+- [x] **应用监控端点**：引入 Spring Boot Actuator，配置健康检查和应用信息端点。 [12-spring-boot-actuator.md](./guide/03-web-security-and-infra/12-spring-boot-actuator.md)
+- [x] **接口幂等性方案**：理解并实现 Token 令牌机制，确保关键接口的幂等性。 [13-idempotency-token-pattern.md](./guide/03-web-security-and-infra/13-idempotency-token-pattern.md)
+- [x] **🤖 AI 协同安全审计**：让 Agent 对你的认证鉴权代码做一次完整的安全审查，识别 JWT 密钥管理、Token 过期策略等常见安全漏洞。 [14-security-audit-report.md](./guide/03-web-security-and-infra/14-security-audit-report.md)
 
 ### Docker 容器化、Nginx 与部署（周末进阶专题）
 
-- [ ] **编写 Dockerfile**：将 Spring Boot 应用打包为 Docker 镜像，理解多阶段构建（Multi-stage Build）的优化思路。 [53-docker-containerization-basics.md](./guide/53-docker-containerization-basics.md)
-- [ ] **Docker Compose 编排**：编排应用 + MySQL + Redis + Nginx 四件套的本地开发/部署环境，一键启动。 [41-docker-compose-essentials.md](./guide/41-docker-compose-essentials.md)
-- [ ] **多环境配置管理**：配置 `application-dev.yml` / `application-prod.yml`，理解 Spring Profiles 机制。 [54-spring-profiles-multi-env.md](./guide/54-spring-profiles-multi-env.md)
-- [ ] **Nginx 反向代理配置**：配置反向代理将请求转发到 Spring Boot 应用。理解 Nginx 在前后端分离架构中的角色——静态资源托管 + API 反向代理 + 负载均衡。 [55-nginx-reverse-proxy-guide.md](./guide/55-nginx-reverse-proxy-guide.md)
-- [ ] **SSH 远程部署基础**：练习通过 SSH 连接远程服务器，完成 Docker 环境安装、镜像拉取和容器启动的基本操作流程。 [56-ssh-remote-deployment-basics.md](./guide/56-ssh-remote-deployment-basics.md)
-- [ ] **🤖 AI 生成 CI/CD 配置**：让 Agent 分别生成 GitHub Actions 和 GitLab CI（`.gitlab-ci.yml`）的工作流配置，实现自动化构建、镜像推送和远程部署。 [57-ci-cd-basics-for-java-web.md](./guide/57-ci-cd-basics-for-java-web.md)
+- [x] **编写 Dockerfile**：将 Spring Boot 应用打包为 Docker 镜像，理解多阶段构建（Multi-stage Build）的优化思路。 [16-docker-containerization-basics.md](./guide/03-web-security-and-infra/16-docker-containerization-basics.md)
+- [x] **Docker Compose 编排**：编排应用 + MySQL + Redis + Nginx 四件套的本地开发/部署环境，一键启动。 [15-docker-compose-essentials.md](./guide/03-web-security-and-infra/15-docker-compose-essentials.md)
+- [x] **多环境配置管理**：配置 `application-dev.yml` / `application-prod.yml`，理解 Spring Profiles 机制。 [17-spring-profiles-multi-env.md](./guide/03-web-security-and-infra/17-spring-profiles-multi-env.md)
+- [x] **Nginx 反向代理配置**：配置反向代理将请求转发到 Spring Boot 应用。理解 Nginx 在前后端分离架构中的角色——静态资源托管 + API 反向代理 + 负载均衡。 [18-nginx-reverse-proxy-guide.md](./guide/03-web-security-and-infra/18-nginx-reverse-proxy-guide.md)
+- [ ] **SSH 远程部署基础**：练习通过 SSH 连接远程服务器，完成 Docker 环境安装、镜像拉取和容器启动的基本操作流程。 [19-ssh-remote-deployment-basics.md](./guide/03-web-security-and-infra/19-ssh-remote-deployment-basics.md)
+- [ ] **🤖 AI 生成 CI/CD 配置**：让 Agent 分别生成 GitHub Actions 和 GitLab CI（`.gitlab-ci.yml`）的工作流配置，实现自动化构建、镜像推送和远程部署。 [20-ci-cd-basics-for-java-web.md](./guide/03-web-security-and-infra/20-ci-cd-basics-for-java-web.md)
 
 ### 通用全栈工程脚手架（阶段成果）
 
@@ -228,17 +228,17 @@
 
 #### 需求分析与数据建模
 
-- [ ] **需求梳理**：明确两大页面（会议室列表页、预约日历页）和两大功能模块（会议室查看、预约管理），梳理核心业务流程：浏览列表 → 查看空闲时段 → 发起预约 → 冲突检测 → 预约成功。
-- [ ] **数据建模与 DDL 编写**：设计核心数据模型并编写 DDL——
+- [x] **需求梳理**：明确两大页面（会议室列表页、预约日历页）和两大功能模块（会议室查看、预约管理），梳理核心业务流程：浏览列表 → 查看空闲时段 → 发起预约 → 冲突检测 → 预约成功。 [03-meetingroom-requirements-and-ddl.md](./guide/04-project-delivery/03-meetingroom-requirements-and-ddl.md)
+- [x] **数据建模与 DDL 编写**：设计核心数据模型并编写 DDL—— [03-meetingroom-requirements-and-ddl.md](./guide/04-project-delivery/03-meetingroom-requirements-and-ddl.md) [meetingroom-init.sql](./docs/sql/meetingroom-init.sql)
   - `meeting_room` 表：名称、位置、容纳人数、设施标签（投影、白板、视频会议等）
   - `reservation` 表：关联会议室与用户，包含会议主题、开始/结束时间、预约状态
   - `user` 表：基础用户信息（用于认证鉴权）
-- [ ] **业务规则确认**：确保数据模型能支撑以下业务规则——同一会议室同一时段不允许重叠预约；同一用户同一时段只能预约一间会议室；单次预约时长上限 4 小时；不能预约过去的时间；会议室数据预置初始化。
+- [x] **业务规则确认**：确保数据模型能支撑以下业务规则——同一会议室同一时段不允许重叠预约；同一用户同一时段只能预约一间会议室；单次预约时长上限 4 小时；不能预约过去的时间；会议室数据预置初始化。 [03-meetingroom-requirements-and-ddl.md](./guide/04-project-delivery/03-meetingroom-requirements-and-ddl.md)
 
 #### 基于通用脚手架定制
 
 - [ ] **Fork 通用脚手架**：从已准备好的通用脚手架仓库 [`../java-web-starter/README.md`](../java-web-starter/README.md) fork/clone，重命名为 `meetingroom` 项目。
-- [ ] **🤖 AI 生成业务骨架**：让 Agent 基于数据模型生成完整的 Entity + Mapper + Service + Controller 层骨架代码，融入脚手架已有的统一响应、异常处理、认证鉴权等基础设施。
+- [ ] **🤖 AI 生成业务骨架**：让 Agent 基于数据模型生成完整的 Entity + Mapper + Service + Controller 层骨架代码，融入脚手架已有的统一响应、异常处理、认证鉴权等基础设施。 [04-meetingroom-backend-delivery-chain.md](./guide/04-project-delivery/04-meetingroom-backend-delivery-chain.md)
 
 #### 核心业务实现
 
