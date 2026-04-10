@@ -20,26 +20,7 @@ spring:
     # username: postgres
     # password: your_password
 
-  # Redis 配置 (Week 3 核心)
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      database: 0
-      timeout: 5000ms
-      lettuce:
-        pool:
-          max-active: 8
-          max-idle: 8
-          min-idle: 0
-          max-wait: -1ms
-    
-    # 数据库初始化配置
-    sql:
-      init:
-        mode: always # 若切换到 MySQL 且表已存在，可改为 never
-    
-    # HikariCP 连接池精细调优
+    # HikariCP 连接池精细调优 (已修正路径到 spring.datasource.hikari)
     hikari:
       # 连接池中允许的最大并发连接数（默认 10）。
       # 黄金法则：根据 CPU 核心数与磁盘 I/O 测定，通常设为 (core_count * 2) + effective_spindle_count
@@ -54,6 +35,26 @@ spring:
       max-lifetime: 1800000
       # 用于测试连接是否有效的 SQL
       connection-test-query: SELECT 1
+
+  # 数据库初始化配置 (已修正路径到 spring.sql.init)
+  sql:
+    init:
+      mode: always # 若切换到 MySQL 且表已存在，可改为 never
+      continue-on-error: true # 防止测试运行中因数据已存在而报错
+
+  # Redis 配置 (Week 3 核心)
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
 
 # MyBatis-Plus 配置
 mybatis-plus:
