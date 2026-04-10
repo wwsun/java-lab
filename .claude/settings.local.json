@@ -4,7 +4,11 @@
       "Bash(java -version)",
       "Bash(brew install:*)",
       "Bash(export PATH=\"/usr/local/opt/openjdk@21/bin:$PATH\")",
-      "Bash(mvn clean:*)"
+      "Bash(mvn clean:*)",
+      "Bash(ps -p 46644 -o pid,command)",
+      "Bash(ps -p 62079 -o pid,command)",
+      "Bash(curl -s http://127.0.0.1:15721/)",
+      "Bash(curl -sv http://127.0.0.1:15721/)"
     ]
   }
 }
